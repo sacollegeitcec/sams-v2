@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Attendance Management Roster Workspace</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0c2340;          
+      --primary-light: #1a365d;    
+      --accent-gold: #d4af37;      
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text-main: #1f2937;
+      --text-dark: #1e293b;
+      --text-muted: #6b7280;
+      --bg-main: #f3f4f6;
+      --bg-card: #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Roboto', sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 3rem; }
+    .hidden { display: none !important; }
+    .text-center { text-align: center; }
+    .text-muted { color: var(--text-muted); }
+    header { background-color: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-bottom: 3px solid var(--accent-gold); }
+    .btn-logout { background: transparent; border: 1px solid white; color: white; padding: 0.4rem 0.9rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; font-weight: 500; transition: background 0.2s; }
+    .btn-logout:hover { background: rgba(255,255,255,0.15); }
+    .container { max-width: 1400px; margin: 1.5rem auto; padding: 0 1rem; }
+    
+    .card { background: var(--bg-card); border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.05); padding: 1.75rem; margin-bottom: 1.5rem; border: 1px solid #e2e8f0; }
+    
+    .auth-wrapper-container { width: 100%; display: flex; justify-content: center; align-items: center; padding: 20px; }
+    .premium-auth-card { background: #ffffff; width: 100%; max-width: 440px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); overflow: hidden; border-top: 5px solid var(--accent-gold); }
+    .college-header-banner { background: #fdfdfd; padding: 32px 24px 20px 24px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+    .college-logo-container { display: flex; justify-content: center; margin-bottom: 15px; }
+    .college-logo { width: 95px; height: 95px; object-fit: contain; padding: 6px; border-radius: 50%; border: 2px solid var(--accent-gold); background: #fff; }
+    .college-title { font-size: 21px; font-weight: 700; color: var(--primary); text-transform: uppercase; }
+    .college-subtitle { font-size: 13px; font-weight: 500; color: #64748b; letter-spacing: 1px; text-transform: uppercase; }
+    .system-tag { display: inline-block; background: #f1f5f9; color: var(--primary); font-size: 12px; font-weight: 600; padding: 6px 16px; border-radius: 9999px; border: 1px solid #cbd5e1; margin-top: 10px; }
+    .form-body-wrapper { padding: 28px; }
+
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 13px; color: var(--text-dark); }
+    .form-control { width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background-color: #f8fafc; color: var(--text-dark); }
+    .form-control:focus { outline: none; border-color: var(--primary); background-color: #ffffff; box-shadow: 0 0 0 3px rgba(12, 35, 64, 0.15); }
+    
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.65rem 1.25rem; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; gap: 0.5rem; font-size: 0.9rem; transition: all 0.2s; }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-success { background-color: var(--success); }
+    .btn-danger { background-color: var(--danger); }
+    .btn-secondary { background-color: #64748b; }
+    
+    .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }
+    .stat-card { background: white; padding: 1.5rem; border-radius: 12px; text-align: center; border-left: 6px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-top: 1px solid #edf2f7; border-right: 1px solid #edf2f7; border-bottom: 1px solid #edf2f7; }
+    .stat-card.val-present { border-left-color: var(--success); }
+    .stat-card.val-suspicious { border-left-color: var(--danger); }
+    .stat-card.val-percentage { border-left-color: var(--warning); }
+    .stat-num { font-size: 2.25rem; font-weight: 700; margin-top: 0.25rem; color: var(--text-dark); }
+    
+    .table-wrapper { width: 100%; overflow-x: auto; margin-top: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; background: white; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
+    th, td { padding: 1rem; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+    th { background-color: #f8fafc; font-weight: 600; color: #475569; border-bottom: 2px solid #e2e8f0; }
+    tr:hover { background-color: #f8fafc; }
+    
+    .status-badge { display: inline-block; padding: 0.25rem 0.65rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+    .badge-present { background-color: #d1fae5; color: #065f46; }
+    .badge-suspicious { background-color: #fee2e2; color: #991b1b; }
+    .badge-entry { background-color: #e0f2fe; color: #0369a1; }
+    
+    .tab-btn { background: transparent; border: none; padding: 0.75rem 1.5rem; font-size: 0.95rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    
+    .action-icon { cursor: pointer; padding: 6px; border-radius: 6px; font-size: 1.2rem; display: inline-flex; align-items: center; margin: 0 2px; transition: background 0.2s; }
+    .action-icon.edit { color: var(--primary-light); }
+    .action-icon.delete { color: var(--danger); }
+    .action-icon:hover { background: #edf2f7; }
+    
+    /* Modern Functional Analytics Charts Framework Elements */
+    .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
+    .chart-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; }
+    .chart-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+    .chart-bar-container { display: flex; flex-direction: column; gap: 0.65rem; margin-top: 0.5rem; }
+    .chart-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; }
+    .chart-bar-outer { flex-grow: 1; height: 10px; background: #e2e8f0; border-radius: 9999px; margin: 0 10px; overflow: hidden; }
+    .chart-bar-inner { height: 100%; background: var(--primary-light); border-radius: 9999px; width: 0%; transition: width 0.5s ease-out; }
+    
+    /* Dedicated Modal Framework Layout Styles */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 15px; }
+    .modal-card { background: white; border-radius: 12px; width: 100%; max-width: 640px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; animation: slideDown 0.25s ease-out; }
+    .modal-header { background: var(--primary); color: white; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 1.5rem; max-height: 75vh; overflow-y: auto; }
+    .modal-footer { background: #f8fafc; padding: 1rem 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem; border-top: 1px solid #e2e8f0; }
+    
+    .pagination-bar { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 0.85rem; }
+    .search-filter-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; }
+
+    #toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.75rem; border-radius: 8px; color: white; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: translateY(250%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 99999; background: #1f2937; }
+    #toast.show { transform: translateY(0); }
+    
+    @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @media(max-width: 768px) { header { flex-direction: column; gap: 1rem; text-align: center; } .grid-stats { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <div id="toast">Operational Engine Packet Alert</div>
+
+  <header id="app-header" class="hidden">
+    <div style="display:flex; align-items:center; gap:0.75rem;">
+      <span class="material-icons" style="color:var(--accent-gold); font-size:2rem;">school</span>
+      <h1 id="header-title" style="font-size: 1.25rem; font-weight:700; letter-spacing:0.5px;">Sontali Anchalik College ERP</h1>
+    </div>
+    <button class="btn-logout" onclick="actions.executeLogout()">
+      <span class="material-icons" style="font-size:1.1rem;">logout</span> Sign Out Terminal
+    </button>
+  </header>
+
+  <div class="container">
+    
+    <div id="view-login" class="auth-wrapper-container" style="margin: 3rem auto;">
+      <div class="premium-auth-card">
+        <div class="college-header-banner">
+          <div class="college-logo-container">
+            <div style="width:90px; height:90px; background:#0c2340; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto; border:3px solid var(--accent-gold);">
+              <span class="material-icons" style="color:white; font-size:3rem;">account_balance</span>
+            </div>
+          </div>
+          <h1 class="college-title">Sontali Anchalik College</h1>
+          <div class="college-subtitle">Kamrup, Assam</div>
+          <span class="system-tag">Smart Attendance System Platform</span>
+        </div>
+        <div class="form-body-wrapper">
+          <form id="form-login" onsubmit="actions.executeLogin(event)">
+            <div class="form-group">
+              <label>System Account Username / Email</label>
+              <input type="text" id="login-username" class="form-control" placeholder="Enter security access login ID" required>
+            </div>
+            <div class="form-group">
+              <label>Security Access Password</label>
+              <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <div class="form-group">
+              <label>Target Workspace Domain Level Scope</label>
+              <select id="login-role" class="form-control">
+                <option value="student">Student Portal Access Gate</option>
+                <option value="admin">Institutional System Administrator</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-auth-submit" style="margin-top:1.5rem; width:100%;">
+              <span class="material-icons" style="font-size: 18px;">lock_open</span> Authenticate Credentials
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-student" class="hidden">
+      <div class="card text-center">
+        <h2>Welcome back, <span id="student-profile-name" style="color:var(--primary);">—</span></h2>
+        <p class="text-muted" style="margin-top: 0.25rem;">Academic Department Assignment Matrix: <span id="student-profile-dept" style="font-weight:600; color:#1f2937;">—</span></p>
+        <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #e2e8f0;">
+        
+        <div style="margin-bottom: 1.25rem;">
+          <p style="font-weight: 600; font-size:0.95rem; margin-bottom:0.5rem;">Today's Log Tracking Telemetry State Check:</p>
+          <span id="lbl-today-status" class="status-badge badge-suspicious">Awaiting synchronization...</span>
+        </div>
+        
+        <div class="camera-box" style="box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius:12px; border:2px solid #cbd5e1;">
+          <video id="video" autoplay playsinline></video>
+          <canvas id="photo-canvas" width="320" height="240"></canvas>
+        </div>
+        
+        <p id="lbl-gps-diagnostic" class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem; font-style: italic;">Awaiting operations deployment hooks...</p>
+        
+        <div style="display: flex; gap: 1rem; max-width: 480px; margin: 0 auto;">
+          <button id="btn-mark-entry" class="btn btn-success" style="flex:1; padding:0.85rem;" onclick="actions.processAttendanceTracking('entry')">
+            <span class="material-icons">login</span> Sign-In Entry
+          </button>
+          <button id="btn-mark-exit" class="btn btn-danger" style="flex:1; padding:0.85rem;" onclick="actions.processAttendanceTracking('exit')">
+            <span class="material-icons">logout</span> Sign-Out Exit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-admin" class="hidden">
+      
+      <div class="grid-stats">
+        <div class="stat-card">Total Enrolled Cohort <div id="stat-total" class="stat-num">0</div></div>
+        <div class="stat-card val-present">Present Active (Today) <div id="stat-present" class="stat-num">0</div></div>
+        <div class="stat-card">Pending Exit Verification <div id="stat-entry-only" class="stat-num">0</div></div>
+        <div class="stat-card val-suspicious">Geofence Outlier Flags <div id="stat-suspicious" class="stat-num">0</div></div>
+        <div class="stat-card val-percentage">Attendance Ratio <div id="stat-ratio" class="stat-num">0%</div></div>
+      </div>
+
+      <div class="card">
+        <h3 style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; color:var(--primary);">
+          <span class="material-icons">analytics</span> Core Institutional Attendance Analytics Dash
+        </h3>
+        <div class="analytics-grid">
+          <div class="chart-box">
+            <div class="chart-title">Department-wise Registration Roster Scale</div>
+            <div id="chart-dept-bars" class="chart-bar-container"></div>
+          </div>
+          <div class="chart-box">
+            <div class="chart-title">Semester-wise Allocation Distribution Matrix</div>
+            <div id="chart-sem-bars" class="chart-bar-container"></div>
+          </div>
+          <div class="chart-box">
+            <div class="chart-title">Activity Timeline Capture Volume Metrics</div>
+            <div id="chart-daily-bars" class="chart-bar-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="admin-extensions" class="card" style="margin-top: 1.5rem;">
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; overflow-x: auto;">
+          <button id="btn-tab-cohort" class="tab-btn active" onclick="adminUi.switchTab('tab-manage-students')">Manage Roster Cohort</button>
+          <button id="btn-tab-ledger" class="tab-btn" onclick="adminUi.switchTab('tab-reports')">Master Attendance Ledger</button>
+          <button id="btn-tab-logs" class="tab-btn" onclick="adminUi.switchTab('tab-system-logs')">Security Governance Audits</button>
+        </div>
+
+        <div id="tab-manage-students" class="admin-tab-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+            <h3 style="color:var(--primary);">Student Roster Structural Control</h3>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn btn-secondary" style="padding:0.5rem 1rem;" onclick="adminUi.triggerBulkFileInput()">
+                <span class="material-icons" style="font-size: 1.1rem;">cloud_upload</span> Bulk CSV Import
+              </button>
+              <input type="file" id="bulk-student-csv" accept=".csv" class="hidden" onchange="adminActions.handleBulkImport(event)">
+              <button class="btn btn-success" style="padding: 0.5rem 1rem;" onclick="adminUi.openStudentModal(false)">
+                <span class="material-icons" style="font-size: 1.1rem;">person_add</span> Register New Profile
+              </button>
+            </div>
+          </div>
+
+          <div class="search-filter-box">
+            <input type="text" id="filter-student-search" class="form-control" placeholder="Search by name, roll, email..." oninput="adminActions.processRosterFiltering()">
+            <select id="filter-student-dept" class="form-control" onchange="adminActions.processRosterFiltering()">
+              <option value="ALL">All Academic Departments</option>
+            </select>
+            <select id="filter-student-sem" class="form-control" onchange="adminActions.processRosterFiltering()">
+              <option value="ALL">All Semesters</option>
+              <option value="1st">1st Semester</option>
+              <option value="2nd">2nd Semester</option>
+              <option value="3rd">3rd Semester</option>
+              <option value="4th">4th Semester</option>
+              <option value="5th">5th Semester</option>
+              <option value="6th">6th Semester</option>
+            </select>
+          </div>
+
+          <div class="table-wrapper">
+            <table id="tbl-students-list">
+              <thead>
+                <tr>
+                  <th onclick="adminActions.sortRoster('id')" style="cursor:pointer;">ID ↕</th>
+                  <th onclick="adminActions.sortRoster('name')" style="cursor:pointer;">Full Name ↕</th>
+                  <th onclick="adminActions.sortRoster('roll')" style="cursor:pointer;">Roll No ↕</th>
+                  <th>Reg No</th>
+                  <th>Department</th>
+                  <th>Semester</th>
+                  <th>Mobile</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Actions Management</th>
+                </tr>
+              </thead>
+              <tbody><tr><td colspan="10" class="text-center text-muted">Loading institutional cohort rows...</td></tr></tbody>
+            </table>
+          </div>
+          <div class="pagination-bar" id="roster-pagination"></div>
+        </div>
+
+        <div id="tab-reports" class="admin-tab-content hidden">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
+            <h3 style="color:var(--primary);">Historical Attendance Ledger Data Map</h3>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn btn-secondary" style="padding:0.4rem 0.8rem;" onclick="adminActions.exportLedgerData('csv')"><span class="material-icons" style="font-size:1rem;">table_view</span> Export CSV</button>
+              <button class="btn btn-secondary" style="padding:0.4rem 0.8rem;" onclick="adminActions.exportLedgerData('print')"><span class="material-icons" style="font-size:1rem;">picture_as_pdf</span> Print / PDF</button>
+            </div>
+          </div>
+          
+          <form id="form-report-filter" onsubmit="adminActions.generateReport(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: flex-end; margin-bottom: 1.5rem; background:#f8fafc; padding:1rem; border-radius:8px; border:1px solid #e2e8f0;">
+            <div class="form-group" style="margin-bottom:0;"><label>Start Query Horizon</label><input type="date" id="rep-start-date" class="form-control" required></div>
+            <div class="form-group" style="margin-bottom:0;"><label>End Query Horizon</label><input type="date" id="rep-end-date" class="form-control" required></div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label>Target Department</label>
+              <select id="rep-dept-select" class="form-control"><option value="ALL">All Departments Grid Matrix</option></select>
+            </div>
+            <button type="submit" class="btn btn-success" style="height: 38px;"><span class="material-icons">search</span> Query Records</button>
+          </form>
+
+          <div class="search-filter-box" style="margin-bottom:1rem; grid-template-columns:1fr 1fr;">
+            <input type="text" id="ledger-search" class="form-control" placeholder="Live search ledger fields..." oninput="adminActions.processLedgerFiltering()">
+            <select id="ledger-filter-status" class="form-control" onchange="adminActions.processLedgerFiltering()">
+              <option value="ALL">All Evaluation Flags</option>
+              <option value="PRESENT">PRESENT</option>
+              <option value="SUSPICIOUS">SUSPICIOUS</option>
+            </select>
+          </div>
+
+          <div class="table-wrapper">
+            <table id="tbl-report-output">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Student ID</th>
+                  <th>Student Name</th>
+                  <th>Roll No</th>
+                  <th>Department</th>
+                  <th>Sign In</th>
+                  <th>Sign Out</th>
+                  <th>GPSSource</th>
+                  <th>Variance Delta</th>
+                  <th>Captured Media Link</th>
+                  <th>Status Flag</th>
+                </tr>
+              </thead>
+              <tbody><tr><td colspan="11" class="text-center text-muted">Execute target parameter scanning array query search above.</td></tr></tbody>
+            </table>
+          </div>
+          <div class="pagination-bar" id="ledger-pagination"></div>
+        </div>
+
+        <div id="tab-system-logs" class="admin-tab-content hidden">
+          <h3 style="color:var(--primary); margin-bottom:1rem;">Security Governance Realtime Trace Audits</h3>
+          <div class="table-wrapper">
+            <table id="tbl-audit-logs">
+              <thead>
+                <tr>
+                  <th>Log Event Timestamp</th>
+                  <th>Profile Actor ID</th>
+                  <th>Action Type String</th>
+                  <th>Diagnostic Telemetry Trace Context</th>
+                  <th>Operational Status Code</th>
+                </tr>
+              </thead>
+              <tbody><tr><td colspan="5" class="text-center text-muted">Awaiting stream telemetry link mapping...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div id="student-crud-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-crud-title">Manage Student Profile Node</h3>
+        <span class="material-icons" style="cursor:pointer;" onclick="adminUi.closeStudentModal()">close</span>
+      </div>
+      <form id="form-student-crud" onsubmit="adminActions.saveStudentForm(event)">
+        <input type="hidden" id="crud-student-id">
+        <div class="modal-body" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group" style="grid-column: span 2;"><label>Full Legal Name</label><input type="text" id="crud-name" class="form-control" required></div>
+          <div class="form-group"><label>Roll Number</label><input type="text" id="crud-roll" class="form-control" required></div>
+          <div class="form-group"><label>University Registration Number</label><input type="text" id="crud-regNo" class="form-control" required></div>
+          <div class="form-group">
+            <label>Academic Department</label>
+            <input type="text" id="crud-dept" class="form-control" placeholder="e.g. Computer Science" required>
+          </div>
+          <div class="form-group">
+            <label>Current Semester Assignment</label>
+            <select id="crud-sem" class="form-control">
+              <option value="1st">1st Semester</option><option value="2nd">2nd Semester</option>
+              <option value="3rd">3rd Semester</option><option value="4th">4th Semester</option>
+              <option value="5th">5th Semester</option><option value="6th">6th Semester</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Mobile Contact Number</label><input type="text" id="crud-mobile" class="form-control" required></div>
+          <div class="form-group"><label>Email Address Roster Endpoint</label><input type="email" id="crud-email" class="form-control" required></div>
+          <div class="form-group" style="grid-column: span 2;" id="pass-field-wrapper">
+            <label>Security Authentication Password (Leave blank to preserve current mapping during modification updates)</label>
+            <input type="password" id="crud-password" class="form-control" placeholder="••••••••">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="adminUi.closeStudentModal()">Cancel</button>
+          <button type="submit" class="btn btn-success" id="btn-crud-save-text">Synchronize Records</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="student-profile-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width:850px;">
+      <div class="modal-header">
+        <h3 id="modal-profile-title">Comprehensive Student Profile Dashboard View</h3>
+        <span class="material-icons" style="cursor:pointer;" onclick="adminUi.closeProfileModal()">close</span>
+      </div>
+      <div class="modal-body">
+        <div style="background:#f8fafc; padding:1.25rem; border-radius:8px; display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; border:1px solid #e2e8f0; margin-bottom:1.5rem;" id="profile-modal-meta-block">
+        </div>
+        <h4 style="color:var(--primary); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.25rem;">
+          <span class="material-icons">history</span> Tailored Track Chronological Attendance Logs History
+        </h4>
+        <div class="table-wrapper">
+          <table id="tbl-student-personal-history">
+            <thead>
+              <tr>
+                <th>Date</th><th>Sign In Time</th><th>Sign Out Time</th><th>Variance Delta</th><th>Status Check</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="adminUi.closeProfileModal()">Close View Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // System Back-end Endpoints Gateway Bridge Mapping
+    const API_URL = "https://script.google.com/macros/s/AKfycbyE50DCdVOjheB_d6apYYPoPCAmsa5M4gcklE_gfP8H0Q8xEBfj5sgAvbE3AfTuSOoW1A/exec"; 
+
+    // Core System App Memory Pipeline Configuration
+    const STATE = {
+      token: localStorage.getItem("att_token") || null,
+      role: localStorage.getItem("att_role") || null,
+      user: JSON.parse(localStorage.getItem("att_user")) || null,
+      cachedStudents: [],
+      filteredStudents: [],
+      cachedLedger: [],
+      filteredLedger: [],
+      pagination: {
+        rosterPage: 1,
+        rosterLimit: 10,
+        ledgerPage: 1,
+        ledgerLimit: 10
+      },
+      sort: { key: 'name', dir: 'asc' }
+    };
+
+    // System Event Notification Alert UI Helper Engine
+    function showToast(msg, isErr=false) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.backgroundColor = isErr ? 'var(--danger)' : '#1f2937';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 4000);
+    }
+
+    // Modern Secure Asynchronous Dynamic Network Transport Wrapper
+    async function makeApiCall(packet) {
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          mode: "cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(packet)
+        });
+        if (!response.ok) throw new Error("HTTP state transport network structural drop.");
+        return await response.json();
+      } catch (err) {
+        showToast("Dynamic Transport API Mismatch Error: " + err.message, true);
+        return { success: false, message: err.message };
+      }
+    }
+
+    // Unified Global Action Controller
+    const actions = {
+      async executeLogin(e) {
+        e.preventDefault();
+        const u = document.getElementById('login-username').value.trim();
+        const p = document.getElementById('login-password').value;
+        const r = document.getElementById('login-role').value;
+        
+        showToast("Verifying identity token matrix mapping...");
+        const res = await makeApiCall({ action: "login", username: u, password: p, role: r });
+        
+        if (res.success) {
+          STATE.token = res.token;
+          STATE.role = res.role;
+          STATE.user = res.user;
+          localStorage.setItem("att_token", res.token);
+          localStorage.setItem("att_role", res.role);
+          localStorage.setItem("att_user", JSON.stringify(res.user));
+          
+          showToast("Access token granted cleanly. Loading workspace view...");
+          appRouter.routeView();
+        } else {
+          showToast(res.message, true);
+        }
+      },
+
+      executeLogout() {
+        if(STATE.videoStream) {
+          STATE.videoStream.getTracks().forEach(t => t.stop());
+        }
+        makeApiCall({ action: "logout", token: STATE.token, payload: { userId: STATE.user?.id } });
+        STATE.token = null; STATE.role = null; STATE.user = null;
+        localStorage.clear();
+        appRouter.routeView();
+        showToast("Security Session Logged Out Cleanly.");
+      },
+
+      async initStudentPortal() {
+        document.getElementById('student-profile-name').innerText = STATE.user.name;
+        document.getElementById('student-profile-dept').innerText = STATE.user.department;
+        
+        const statusRes = await makeApiCall({ action: "getTodayStatus", token: STATE.token });
+        const lbl = document.getElementById('lbl-today-status');
+        if (statusRes.success && statusRes.record) {
+          const rec = statusRes.record;
+          lbl.innerText = `Signed In: ${rec.entryTime || '—'} | Signed Out: ${rec.exitTime || 'Awaiting Exit'} [${rec.status}]`;
+          lbl.className = "status-badge " + (rec.status === 'SUSPICIOUS' ? 'badge-suspicious' : rec.exitTime ? 'badge-present' : 'badge-entry');
+        } else {
+          lbl.innerText = "No active tracker state logged for today.";
+          lbl.className = "status-badge badge-suspicious";
+        }
+        
+        // Setup Media Device Capture Context Stream Hooks
+        const video = document.getElementById('video');
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
+          .then(stream => { 
+            STATE.videoStream = stream; 
+            video.srcObject = stream; 
+          })
+          .catch(err => {
+            showToast("Camera Resource Stream Locked: " + err.message, true);
+            document.getElementById('lbl-gps-diagnostic').innerText = "Camera missing hardware validation keys.";
+          });
+          
+        // Setup Device Geo-Location Hardware Interoperability
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            pos => {
+              document.getElementById('lbl-gps-diagnostic').innerText = `GPS Grid Locked: Accurately mapping within ${Math.round(pos.coords.accuracy)} meters variance threshold context.`;
+              STATE.lastCoords = pos.coords;
+            },
+            err => {
+              document.getElementById('lbl-gps-diagnostic').innerText = "GPS Lat/Lng Hardware Engine Fault: " + err.message;
+            },
+            { enableHighAccuracy: true }
+          );
+        }
+      },
+
+      async processAttendanceTracking(type) {
+        if (!STATE.lastCoords) {
+          showToast("Awaiting GPS synchronization parameters alignment. Standby.", true);
+          return;
+        }
+        
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('photo-canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, 320, 240);
+        const imageB64 = canvas.toDataURL('image/jpeg', 0.85);
+        
+        showToast(`Transmitting telemetry packets for ${type} validation mapping...`);
+        const act = type === 'entry' ? 'submitEntry' : 'submitExit';
+        
+        const res = await makeApiCall({
+          action: act,
+          token: STATE.token,
+          payload: {
+            lat: STATE.lastCoords.latitude,
+            lng: STATE.lastCoords.longitude,
+            accuracy: STATE.lastCoords.accuracy,
+            gpsSource: "browser_high_precision_hardware",
+            imageB64: imageB64
+          }
+        });
+        
+        if(res.success) {
+          showToast(res.message);
+          actions.initStudentPortal();
+        } else {
+          showToast(res.message, true);
+        }
+      }
+    };
+
+    // Advanced Administrative Actions Controller Matrix
+    const adminActions = {
+      async loadDashboardContext() {
+        showToast("Synchronizing metrics from data repository ecosystem...");
+        const res = await makeApiCall({ action: "getDashboardStats", token: STATE.token });
+        if(res.success) {
+          const d = res.data;
+          document.getElementById('stat-total').innerText = d.totalStudents;
+          document.getElementById('stat-present').innerText = d.present;
+          document.getElementById('stat-entry-only').innerText = d.entryOnly;
+          document.getElementById('stat-suspicious').innerText = d.suspicious;
+          
+          const ratio = d.totalStudents > 0 ? Math.round(((d.present + d.entryOnly) / d.totalStudents) * 100) : 0;
+          document.getElementById('stat-ratio').innerText = ratio + "%";
+          
+          // Populate live activity feed mapping rows
+          const tbody = document.querySelector('#tbl-live-feed tbody');
+          tbody.innerHTML = "";
+          if(d.liveRecords.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='3' class='text-center text-muted'>Awaiting transmission payload streams...</td></tr>";
+          } else {
+            d.liveRecords.forEach(r => {
+              const badge = r.status === 'SUSPICIOUS' ? 'badge-suspicious' : r.status === 'PRESENT' ? 'badge-present' : 'badge-entry';
+              tbody.innerHTML += `<tr><td><code>${r.studentId}</code></td><td>${r.entryTime}</td><td><span class='status-badge ${badge}'>${r.status}</span></td></tr>`;
+            });
+          }
+          
+          // Build interactive computational charts bars
+          if (d.analytics) {
+            adminActions.renderChartBarGroup('chart-dept-bars', d.analytics.departments);
+            adminActions.renderChartBarGroup('chart-sem-bars', d.analytics.semesters);
+            adminActions.renderChartBarGroup('chart-daily-bars', d.analytics.daily);
+          }
+        }
+      },
+
+      renderChartBarGroup(elementId, datasetObj) {
+        const container = document.getElementById(elementId);
+        container.innerHTML = "";
+        const keys = Object.keys(datasetObj || {});
+        if(keys.length === 0) { container.innerHTML = "<div class='text-muted' style='font-size:0.8rem;'>No tracked telemetry sets.</div>"; return; }
+        
+        const maxVal = Math.max(...Object.values(datasetObj), 1);
+        keys.forEach(k => {
+          const val = datasetObj[k];
+          const pct = Math.round((val / maxVal) * 100);
+          container.innerHTML += `
+            <div class="chart-row">
+              <span style="width:75px; font-weight:500; text-overflow:ellipsis; overflow:hidden;">${k}</span>
+              <div class="chart-bar-outer"><div class="chart-bar-inner" style="width:${pct}%"></div></div>
+              <span style="font-weight:700; color:var(--primary); width:25px; text-align:right;">${val}</span>
+            </div>`;
+        });
+      },
+
+      async syncRosterDataset() {
+        const res = await makeApiCall({ action: "getAllStudents", token: STATE.token });
+        if(res.success) {
+          STATE.cachedStudents = res.data.students;
+          adminActions.populateDeptFilters(res.data.students);
+          adminActions.processRosterFiltering();
+        }
+      },
+
+      populateDeptFilters(students) {
+        const depts = new Set();
+        students.forEach(s => { if(s.department) depts.add(s.department); });
+        const filterSel = document.getElementById('filter-student-dept');
+        const reportSel = document.getElementById('rep-dept-select');
+        
+        // Preserve index 0 option values
+        filterSel.innerHTML = '<option value="ALL">All Academic Departments</option>';
+        reportSel.innerHTML = '<option value="ALL">All Departments Grid Matrix</option>';
+        
+        depts.forEach(d => {
+          const opt = `<option value="${d}">${d}</option>`;
+          filterSel.innerHTML += opt;
+          reportSel.innerHTML += opt;
+        });
+      },
+
+      processRosterFiltering() {
+        const query = document.getElementById('filter-student-search').value.toLowerCase().trim();
+        const dept = document.getElementById('filter-student-dept').value;
+        const sem = document.getElementById('filter-student-sem').value;
+        
+        STATE.filteredStudents = STATE.cachedStudents.filter(s => {
+          const mQuery = !query || s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query) || s.roll.toLowerCase().includes(query) || s.email.toLowerCase().includes(query);
+          const mDept = dept === 'ALL' || s.department === dept;
+          const mSem = sem === 'ALL' || s.semester === sem;
+          return mQuery && mDept && mSem;
+        });
+        
+        // Perform standard alpha-sort configurations
+        STATE.filteredStudents.sort((a,b) => {
+          let valA = a[STATE.sort.key]?.toLowerCase() || '';
+          let valB = b[STATE.sort.key]?.toLowerCase() || '';
+          return STATE.sort.dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        });
+        
+        STATE.pagination.rosterPage = 1;
+        adminActions.renderRosterTable();
+      },
+
+      sortRoster(key) {
+        if(STATE.sort.key === key) {
+          STATE.sort.dir = STATE.sort.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+          STATE.sort.key = key; STATE.sort.dir = 'asc';
+        }
+        adminActions.processRosterFiltering();
+      },
+
+      renderRosterTable() {
+        const tbody = document.querySelector('#tbl-students-list tbody');
+        tbody.innerHTML = "";
+        
+        const count = STATE.filteredStudents.length;
+        if(count === 0) {
+          tbody.innerHTML = "<tr><td colspan='10' class='text-center text-muted'>No current cohort records match structural matrix query scope constraints.</td></tr>";
+          document.getElementById('roster-pagination').innerHTML = "";
+          return;
+        }
+        
+        const p = STATE.pagination;
+        const startIdx = (p.rosterPage - 1) * p.rosterLimit;
+        const endIdx = Math.min(startIdx + p.rosterLimit, count);
+        const pages = Math.ceil(count / p.rosterLimit);
+        
+        for(let i=startIdx; i<endIdx; i++) {
+          const s = STATE.filteredStudents[i];
+          tbody.innerHTML += `
+            <tr>
+              <td><code>${s.id}</code></td>
+              <td><strong>${s.name}</strong></td>
+              <td>${s.roll}</td>
+              <td>${s.regNo || '—'}</td>
+              <td><small>${s.department}</small></td>
+              <td>${s.semester || '—'}</td>
+              <td>${s.mobile || '—'}</td>
+              <td>${s.email}</td>
+              <td><span class='status-badge ${s.status === 'active'?'badge-present':'badge-suspicious'}'>${s.status}</span></td>
+              <td>
+                <span class="material-icons action-icon" style="color:var(--success);" title="View History" onclick="adminActions.viewPersonalProfile('${s.id}')">visibility</span>
+                <span class="material-icons action-icon edit" title="Edit Profile" onclick="adminUi.openStudentModal(true, ${i})">edit</span>
+                <span class="material-icons action-icon delete" title="Purge Record" onclick="adminActions.purgeStudentProfile('${s.id}')">delete_forever</span>
+              </td>
+            </tr>`;
+        }
+        
+        // Build analytical layout pagination nodes
+        let pagHtml = `<div>Showing records <b>${startIdx+1}-${endIdx}</b> of <b>${count}</b></div><div style="display:flex; gap:0.25rem;">`;
+        for(let j=1; j<=pages; j++) {
+          pagHtml += `<button class="btn" style="padding:0.25rem 0.5rem; background:${j===p.rosterPage?'var(--primary-light)':'#cbd5e1'}; color:${j===p.rosterPage?'white':'#1f2937'};" onclick="STATE.pagination.rosterPage=${j}; adminActions.renderRosterTable();">${j}</button>`;
+        }
+        pagHtml += `</div>`;
+        document.getElementById('roster-pagination').innerHTML = pagHtml;
+      },
+
+      async saveStudentForm(e) {
+        e.preventDefault();
+        const id = document.getElementById('crud-student-id').value;
+        const payload = {
+          id: id || undefined,
+          name: document.getElementById('crud-name').value.trim(),
+          roll: document.getElementById('crud-roll').value.trim(),
+          regNo: document.getElementById('crud-regNo').value.trim(),
+          department: document.getElementById('crud-dept').value.trim(),
+          semester: document.getElementById('crud-sem').value,
+          mobile: document.getElementById('crud-mobile').value.trim(),
+          email: document.getElementById('crud-email').value.trim(),
+          password: document.getElementById('crud-password').value || undefined
+        };
+        
+        const action = id ? "updateStudent" : "addStudent";
+        showToast("Synchronizing profile modifications across relational index arrays...");
+        
+        const res = await makeApiCall({ action, token: STATE.token, payload });
+        if(res.success) {
+          showToast(res.message);
+          adminUi.closeStudentModal();
+          adminActions.syncRosterDataset();
+          adminActions.loadDashboardContext();
+        } else {
+          showToast(res.message, true);
+        }
+      },
+
+      async purgeStudentProfile(id) {
+        if(!confirm(`Security Operation: Are you absolutely certain you want to purge profile node [ ${id} ] entirely from the Google Sheet records database? This cannot be undone.`)) return;
+        showToast("Dropping row execution target...");
+        const res = await makeApiCall({ action: "deleteStudent", token: STATE.token, payload: { id } });
+        if(res.success) {
+          showToast(res.message);
+          adminActions.syncRosterDataset();
+          adminActions.loadDashboardContext();
+        } else {
+          showToast(res.message, true);
+        }
+      },
+
+      handleBulkImport(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = async function(evt) {
+          const text = evt.target.result;
+          const lines = text.split("\n");
+          let studentsList = [];
+          
+          // Basic header extraction validation checks: name, roll, regNo, department, semester, mobile, email
+          for(let i=1; i<lines.length; i++) {
+            if(!lines[i].trim()) continue;
+            const cols = lines[i].split(",");
+            if(cols.length >= 5) {
+              studentsList.push({
+                name: cols[0]?.trim(),
+                roll: cols[1]?.trim(),
+                regNo: cols[2]?.trim(),
+                department: cols[3]?.trim(),
+                semester: cols[4]?.trim(),
+                mobile: cols[5]?.trim(),
+                email: cols[6]?.trim()
+              });
+            }
+          }
+          
+          if(studentsList.length === 0) { showToast("CSV layout processing error or row index empty.", true); return; }
+          showToast(`Processing bulk upload array pipeline for ${studentsList.length} metadata sets...`);
+          const res = await makeApiCall({ action: "bulkImportStudents", token: STATE.token, payload: { studentsList } });
+          if(res.success) {
+            showToast(res.message);
+            adminActions.syncRosterDataset();
+            adminActions.loadDashboardContext();
+          }
+        };
+        reader.readAsText(file);
+      },
+
+      async generateReport(e) {
+        if(e) e.preventDefault();
+        const start = document.getElementById('rep-start-date').value;
+        const end = document.getElementById('rep-end-date').value;
+        const dept = document.getElementById('rep-dept-select').value;
+        
+        showToast("Scanning core archival logging matrices...");
+        const res = await makeApiCall({ action: "generateReport", token: STATE.token, payload: { start, end, dept } });
+        if(res.success) {
+          STATE.cachedLedger = res.data.rows;
+          adminActions.processLedgerFiltering();
+        }
+      },
+
+      processLedgerFiltering() {
+        const query = document.getElementById('ledger-search').value.toLowerCase().trim();
+        const status = document.getElementById('ledger-filter-status').value;
+        
+        STATE.filteredLedger = STATE.cachedLedger.filter(r => {
+          const mQ = !query || r.name.toLowerCase().includes(query) || r.studentId.toLowerCase().includes(query) || r.roll.toLowerCase().includes(query);
+          const mS = status === 'ALL' || r.status === status;
+          return mQ && mS;
+        });
+        
+        STATE.pagination.ledgerPage = 1;
+        adminActions.renderLedgerTable();
+      },
+
+      renderLedgerTable() {
+        const tbody = document.querySelector('#tbl-report-output tbody');
+        tbody.innerHTML = "";
+        const count = STATE.filteredLedger.length;
+        if(count === 0) {
+          tbody.innerHTML = "<tr><td colspan='11' class='text-center text-muted'>Empty matrix query returns. No matching cells.</td></tr>";
+          document.getElementById('ledger-pagination').innerHTML = "";
+          return;
+        }
+        
+        const p = STATE.pagination;
+        const startIdx = (p.ledgerPage - 1) * p.ledgerLimit;
+        const endIdx = Math.min(startIdx + p.ledgerLimit, count);
+        const pages = Math.ceil(count / p.ledgerLimit);
+        
+        for(let i=startIdx; i<endIdx; i++) {
+          const r = STATE.filteredLedger[i];
+          const badge = r.status === 'SUSPICIOUS' ? 'badge-suspicious' : r.status === 'PRESENT' ? 'badge-present' : 'badge-entry';
+          const link = r.media ? `<a href="${r.media}" target="_blank" style="color:var(--primary-light); font-weight:600; display:inline-flex; align-items:center; gap:2px;"><span class='material-icons' style='font-size:1rem;'>photo_camera</span> Image</a>` : '—';
+          
+          tbody.innerHTML += `
+            <tr>
+              <td><code>${r.date}</code></td>
+              <td><code>${r.studentId}</code></td>
+              <td><strong>${r.name}</strong></td>
+              <td>${r.roll}</td>
+              <td>${r.department}</td>
+              <td>${r.entryTime}</td>
+              <td>${r.exitTime}</td>
+              <td><small class='text-muted'>${r.gpsSource}</small></td>
+              <td>${r.distance}</td>
+              <td>${link}</td>
+              <td><span class='status-badge ${badge}'>${r.status}</span></td>
+            </tr>`;
+        }
+        
+        let pagHtml = `<div>Displaying indices <b>${startIdx+1}-${endIdx}</b> of <b>${count}</b> Ledger Records</div><div style="display:flex; gap:0.25rem;">`;
+        for(let j=1; j<=pages; j++) {
+          pagHtml += `<button class="btn" style="padding:0.25rem 0.5rem; background:${j===p.ledgerPage?'var(--primary-light)':'#cbd5e1'}; color:${j===p.ledgerPage?'white':'#1f2937'};" onclick="STATE.pagination.ledgerPage=${j}; adminActions.renderLedgerTable();">${j}</button>`;
+        }
+        pagHtml += `</div>`;
+        document.getElementById('ledger-pagination').innerHTML = pagHtml;
+      },
+
+      async viewPersonalProfile(studentId) {
+        const s = STATE.cachedStudents.find(x => x.id === studentId);
+        if(!s) return;
+        
+        document.getElementById('modal-profile-title').innerText = `Profile Portfolio: ${s.name}`;
+        
+        const meta = document.getElementById('profile-modal-meta-block');
+        meta.innerHTML = `
+          <div><b>Roster System ID:</b> <code>${s.id}</code></div>
+          <div><b>Roll Number Reference:</b> ${s.roll}</div>
+          <div><b>Registration Identification:</b> ${s.regNo || 'N/A'}</div>
+          <div><b>Institutional Branch:</b> ${s.department}</div>
+          <div><b>Semester Classification:</b> ${s.semester}</div>
+          <div><b>Mobile Vector:</b> ${s.mobile || 'N/A'}</div>
+          <div><b>Email Endpoint:</b> ${s.email}</div>
+          <div><b>Account Core Visibility:</b> ${s.status.toUpperCase()}</div>
+        `;
+        
+        showToast("Compiling contextual history trail tracking logs...");
+        const res = await makeApiCall({ action: "generateReport", token: STATE.token, payload: { start: "", end: "", dept: "ALL" } });
+        
+        const tbody = document.querySelector('#tbl-student-personal-history tbody');
+        tbody.innerHTML = "";
+        
+        if(res.success) {
+          const personalLogs = res.data.rows.filter(x => x.studentId === studentId);
+          if(personalLogs.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='5' class='text-center text-muted'>No dynamic history logs registered for this node.</td></tr>";
+          } else {
+            personalLogs.forEach(l => {
+              const badge = l.status === 'SUSPICIOUS' ? 'badge-suspicious' : l.status === 'PRESENT' ? 'badge-present' : 'badge-entry';
+              tbody.innerHTML += `
+                <tr>
+                  <td><code>${l.date}</code></td>
+                  <td>${l.entryTime}</td>
+                  <td>${l.exitTime}</td>
+                  <td>${l.distance}</td>
+                  <td><span class='status-badge ${badge}'>${l.status}</span></td>
+                </tr>`;
+            });
+          }
+        }
+        document.getElementById('student-profile-modal').classList.remove('hidden');
+      },
+
+      exportLedgerData(type) {
+        if(STATE.filteredLedger.length === 0) { showToast("No processed array records sets available for extraction compilation.", true); return; }
+        if(type === 'csv') {
+          let csv = "Date,StudentID,Name,RollNo,Department,SignIn,SignOut,GPSSource,Distance,Status\n";
+          STATE.filteredLedger.forEach(r => {
+            csv += `"${r.date}","${r.studentId}","${r.name}","${r.roll}","${r.department}","${r.entryTime}","${r.exitTime}","${r.gpsSource}","${r.distance}","${r.status}"\n`;
+          });
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.setAttribute("download", `Attendance_Ledger_Extract_${Date.now()}.csv`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          showToast("CSV dataset extraction package exported cleanly.");
+        } else if(type === 'print') {
+          window.print();
+        }
+      },
+
+      async loadAuditTrace() {
+        const res = await makeApiCall({ action: "getSystemLogs", token: STATE.token, payload: { maxRows: 60 } });
+        if(res.success) {
+          const tbody = document.querySelector('#tbl-audit-logs tbody');
+          tbody.innerHTML = "";
+          res.data.logs.forEach(l => {
+            tbody.innerHTML += `
+              <tr>
+                <td><small>${new Date(l.timestamp).toLocaleString()}</small></td>
+                <td><code>${l.userId}</code></td>
+                <td><strong style='color:var(--primary-light);'>${l.action}</strong></td>
+                <td><span class='text-muted' style='font-size:0.8rem;'>${l.ip}</span></td>
+                <td><span class='status-badge ${l.status==='Success'?'badge-present':'badge-suspicious'}'>${l.status}</span></td>
+              </tr>`;
+          });
+        }
+      }
+    };
+
+    // Responsive Interface Presentation UI Router
+    const adminUi = {
+      switchTab(tabId) {
+        document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.remove('hidden');
+        
+        if(tabId === 'tab-manage-students') {
+          document.getElementById('btn-tab-cohort').classList.add('active');
+          adminActions.syncRosterDataset();
+        } else if(tabId === 'tab-reports') {
+          document.getElementById('btn-tab-ledger').classList.add('active');
+        } else if(tabId === 'tab-system-logs') {
+          document.getElementById('btn-tab-logs').classList.add('active');
+          adminActions.loadAuditTrace();
+        }
+      },
+
+      triggerBulkFileInput() { document.getElementById('bulk-student-csv').click(); },
+
+      openStudentModal(isEdit, idx) {
+        const form = document.getElementById('form-student-crud');
+        form.reset();
+        
+        if(isEdit && idx !== undefined) {
+          const s = STATE.filteredStudents[idx];
+          document.getElementById('modal-crud-title').innerText = "Modify Existing Profile Data Layer";
+          document.getElementById('crud-student-id').value = s.id;
+          document.getElementById('crud-name').value = s.name;
+          document.getElementById('crud-roll').value = s.roll;
+          document.getElementById('crud-regNo').value = s.regNo || '';
+          document.getElementById('crud-dept').value = s.department;
+          document.getElementById('crud-sem').value = s.semester || '1st';
+          document.getElementById('crud-mobile').value = s.mobile || '';
+          document.getElementById('crud-email').value = s.email;
+          document.getElementById('crud-password').placeholder = "Enter text to rewrite credentials key completely";
+        } else {
+          document.getElementById('modal-crud-title').innerText = "Register New Roster Profile Node";
+          document.getElementById('crud-student-id').value = "";
+          document.getElementById('crud-password').placeholder = "Default initial value: 123456";
+        }
+        document.getElementById('student-crud-modal').classList.remove('hidden');
+      },
+
+      closeStudentModal() { document.getElementById('student-crud-modal').classList.add('hidden'); },
+      closeProfileModal() { document.getElementById('student-profile-modal').classList.add('hidden'); }
+    };
+
+    // Primary Core App Rerouting Structural Manager
+    const appRouter = {
+      routeView() {
+        // Enforce structural element default hides
+        document.getElementById('view-login').classList.add('hidden');
+        document.getElementById('view-student').classList.add('hidden');
+        document.getElementById('view-admin').classList.add('hidden');
+        document.getElementById('app-header').classList.add('hidden');
+        
+        if (!STATE.token) {
+          document.getElementById('view-login').classList.remove('hidden');
+        } else {
+          document.getElementById('app-header').classList.remove('remove');
+          document.getElementById('app-header').classList.remove('hidden');
+          
+          if (STATE.role === 'admin') {
+            document.getElementById('view-admin').classList.remove('hidden');
+            adminActions.loadDashboardContext();
+            adminUi.switchTab('tab-manage-students');
+          } else {
+            document.getElementById('view-student').classList.remove('hidden');
+            actions.initStudentPortal();
+          }
+        }
+      }
+    };
+
+    // Standard Application Launch Entry Initialization hook
+    window.addEventListener('DOMContentLoaded', () => appRouter.routeView());
+  </script>
+</body>
+</html>
