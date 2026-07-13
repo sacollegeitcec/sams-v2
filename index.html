@@ -660,19 +660,25 @@
         });
       },
 
-      processRosterFiltering() {
+            processRosterFiltering() {
         const query = document.getElementById('filter-student-search').value.toLowerCase().trim();
         const dept = document.getElementById('filter-student-dept').value;
         const sem = document.getElementById('filter-student-sem').value;
         
         STATE.filteredStudents = STATE.cachedStudents.filter(s => {
-          const mQuery = !query || s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query) || (s.roll && s.roll.toLowerCase().includes(query)) || s.email.toLowerCase().includes(query);
+          // Wrap properties in String() safely to handle numeric IDs and Roll numbers without throwing crashes
+          const sName = s.name ? String(s.name).toLowerCase() : "";
+          const sId = s.id ? String(s.id).toLowerCase() : "";
+          const sRoll = s.roll ? String(s.roll).toLowerCase() : "";
+          const sEmail = s.email ? String(s.email).toLowerCase() : "";
+
+          const mQuery = !query || sName.includes(query) || sId.includes(query) || sRoll.includes(query) || sEmail.includes(query);
           const mDept = dept === 'ALL' || s.department === dept;
           const mSem = sem === 'ALL' || s.semester === sem;
           return mQuery && mDept && mSem;
         });
         
-        // FIXED ALPHANUMERIC CLASSIFICATION MATRICES ENGINE
+        // ROBUST ALPHANUMERIC CLASSIFICATION MATRICES ENGINE
         STATE.filteredStudents.sort((a, b) => {
           let key = STATE.sort.key;
           let valA = a[key] !== undefined ? String(a[key]) : "";
@@ -686,6 +692,7 @@
         STATE.pagination.rosterPage = 1;
         adminActions.renderRosterTable();
       },
+
 
       sortRoster(key) {
         if(STATE.sort.key === key) {
