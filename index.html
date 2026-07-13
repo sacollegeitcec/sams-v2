@@ -100,6 +100,28 @@
 
     #toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.75rem; border-radius: 8px; color: white; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: translateY(250%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 99999; background: #1f2937; }
     #toast.show { transform: translateY(0); }
+
+    /* FIXED CAMERA MOBILE VIEW CONSTRAINTS MATRIX */
+    .camera-box {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto 1.5rem auto;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 2px solid #cbd5e1;
+      background: #000;
+      position: relative;
+      aspect-ratio: 4 / 3;
+    }
+    .camera-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    #photo-canvas {
+      display: none !important;
+    }
     
     @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @media(max-width: 768px) { header { flex-direction: column; gap: 1rem; text-align: center; } .grid-stats { grid-template-columns: 1fr; } }
@@ -169,7 +191,7 @@
           <span id="lbl-today-status" class="status-badge badge-suspicious">Awaiting synchronization...</span>
         </div>
         
-        <div class="camera-box" style="box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius:12px; border:2px solid #cbd5e1;">
+        <div class="camera-box">
           <video id="video" autoplay playsinline></video>
           <canvas id="photo-canvas" width="320" height="240"></canvas>
         </div>
@@ -598,14 +620,16 @@
           
           // Populate live activity feed mapping rows
           const tbody = document.querySelector('#tbl-live-feed tbody');
-          tbody.innerHTML = "";
-          if(d.liveRecords.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='3' class='text-center text-muted'>Awaiting transmission payload streams...</td></tr>";
-          } else {
-            d.liveRecords.forEach(r => {
-              const badge = r.status === 'SUSPICIOUS' ? 'badge-suspicious' : r.status === 'PRESENT' ? 'badge-present' : 'badge-entry';
-              tbody.innerHTML += `<tr><td><code>${r.studentId}</code></td><td>${r.entryTime}</td><td><span class='status-badge ${badge}'>${r.status}</span></td></tr>`;
-            });
+          if (tbody) {
+            tbody.innerHTML = "";
+            if(d.liveRecords.length === 0) {
+              tbody.innerHTML = "<tr><td colspan='3' class='text-center text-muted'>Awaiting transmission payload streams...</td></tr>";
+            } else {
+              d.liveRecords.forEach(r => {
+                const badge = r.status === 'SUSPICIOUS' ? 'badge-suspicious' : r.status === 'PRESENT' ? 'badge-present' : 'badge-entry';
+                tbody.innerHTML += `<tr><td><code>${r.studentId}</code></td><td>${r.entryTime}</td><td><span class='status-badge ${badge}'>${r.status}</span></td></tr>`;
+              });
+            }
           }
           
           // Build interactive computational charts bars
@@ -619,6 +643,7 @@
 
       renderChartBarGroup(elementId, datasetObj) {
         const container = document.getElementById(elementId);
+        if (!container) return;
         container.innerHTML = "";
         const keys = Object.keys(datasetObj || {});
         if(keys.length === 0) { container.innerHTML = "<div class='text-muted' style='font-size:0.8rem;'>No tracked telemetry sets.</div>"; return; }
@@ -651,14 +676,13 @@
         const filterSel = document.getElementById('filter-student-dept');
         const reportSel = document.getElementById('rep-dept-select');
         
-        // Preserve index 0 option values
-        filterSel.innerHTML = '<option value="ALL">All Academic Departments</option>';
-        reportSel.innerHTML = '<option value="ALL">All Departments Grid Matrix</option>';
+        if (filterSel) filterSel.innerHTML = '<option value="ALL">All Academic Departments</option>';
+        if (reportSel) reportSel.innerHTML = '<option value="ALL">All Departments Grid Matrix</option>';
         
         depts.forEach(d => {
           const opt = `<option value="${d}">${d}</option>`;
-          filterSel.innerHTML += opt;
-          reportSel.innerHTML += opt;
+          if (filterSel) filterSel.innerHTML += opt;
+          if (reportSel) reportSel.innerHTML += opt;
         });
       },
 
@@ -674,11 +698,15 @@
           return mQuery && mDept && mSem;
         });
         
-        // Perform standard alpha-sort configurations
-        STATE.filteredStudents.sort((a,b) => {
-          let valA = a[STATE.sort.key]?.toLowerCase() || '';
-          let valB = b[STATE.sort.key]?.toLowerCase() || '';
-          return STATE.sort.dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        // FIXED ALPHANUMERIC ROSTER SORT ENGINE WRAPPER
+        STATE.filteredStudents.sort((a, b) => {
+          let key = STATE.sort.key;
+          let valA = a[key] !== undefined ? String(a[key]) : "";
+          let valB = b[key] !== undefined ? String(b[key]) : "";
+          
+          return STATE.sort.dir === 'asc' 
+            ? valA.localeCompare(valB, undefined, {numeric: true, sensitivity: 'base'}) 
+            : valB.localeCompare(valA, undefined, {numeric: true, sensitivity: 'base'});
         });
         
         STATE.pagination.rosterPage = 1;
@@ -696,6 +724,7 @@
 
       renderRosterTable() {
         const tbody = document.querySelector('#tbl-students-list tbody');
+        if (!tbody) return;
         tbody.innerHTML = "";
         
         const count = STATE.filteredStudents.length;
@@ -731,7 +760,6 @@
             </tr>`;
         }
         
-        // Build analytical layout pagination nodes
         let pagHtml = `<div>Showing records <b>${startIdx+1}-${endIdx}</b> of <b>${count}</b></div><div style="display:flex; gap:0.25rem;">`;
         for(let j=1; j<=pages; j++) {
           pagHtml += `<button class="btn" style="padding:0.25rem 0.5rem; background:${j===p.rosterPage?'var(--primary-light)':'#cbd5e1'}; color:${j===p.rosterPage?'white':'#1f2937'};" onclick="STATE.pagination.rosterPage=${j}; adminActions.renderRosterTable();">${j}</button>`;
@@ -791,7 +819,6 @@
           const lines = text.split("\n");
           let studentsList = [];
           
-          // Basic header extraction validation checks: name, roll, regNo, department, semester, mobile, email
           for(let i=1; i<lines.length; i++) {
             if(!lines[i].trim()) continue;
             const cols = lines[i].split(",");
@@ -850,6 +877,7 @@
 
       renderLedgerTable() {
         const tbody = document.querySelector('#tbl-report-output tbody');
+        if (!tbody) return;
         tbody.innerHTML = "";
         const count = STATE.filteredLedger.length;
         if(count === 0) {
@@ -914,24 +942,25 @@
         const res = await makeApiCall({ action: "generateReport", token: STATE.token, payload: { start: "", end: "", dept: "ALL" } });
         
         const tbody = document.querySelector('#tbl-student-personal-history tbody');
-        tbody.innerHTML = "";
-        
-        if(res.success) {
-          const personalLogs = res.data.rows.filter(x => x.studentId === studentId);
-          if(personalLogs.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='5' class='text-center text-muted'>No dynamic history logs registered for this node.</td></tr>";
-          } else {
-            personalLogs.forEach(l => {
-              const badge = l.status === 'SUSPICIOUS' ? 'badge-suspicious' : l.status === 'PRESENT' ? 'badge-present' : 'badge-entry';
-              tbody.innerHTML += `
-                <tr>
-                  <td><code>${l.date}</code></td>
-                  <td>${l.entryTime}</td>
-                  <td>${l.exitTime}</td>
-                  <td>${l.distance}</td>
-                  <td><span class='status-badge ${badge}'>${l.status}</span></td>
-                </tr>`;
-            });
+        if (tbody) {
+          tbody.innerHTML = "";
+          if(res.success) {
+            const personalLogs = res.data.rows.filter(x => x.studentId === studentId);
+            if(personalLogs.length === 0) {
+              tbody.innerHTML = "<tr><td colspan='5' class='text-center text-muted'>No dynamic history logs registered for this node.</td></tr>";
+            } else {
+              personalLogs.forEach(l => {
+                const badge = l.status === 'SUSPICIOUS' ? 'badge-suspicious' : l.status === 'PRESENT' ? 'badge-present' : 'badge-entry';
+                tbody.innerHTML += `
+                  <tr>
+                    <td><code>${l.date}</code></td>
+                    <td>${l.entryTime}</td>
+                    <td>${l.exitTime}</td>
+                    <td>${l.distance}</td>
+                    <td><span class='status-badge ${badge}'>${l.status}</span></td>
+                  </tr>`;
+              });
+            }
           }
         }
         document.getElementById('student-profile-modal').classList.remove('hidden');
@@ -961,6 +990,7 @@
         const res = await makeApiCall({ action: "getSystemLogs", token: STATE.token, payload: { maxRows: 60 } });
         if(res.success) {
           const tbody = document.querySelector('#tbl-audit-logs tbody');
+          if (!tbody) return;
           tbody.innerHTML = "";
           res.data.logs.forEach(l => {
             tbody.innerHTML += `
@@ -1027,7 +1057,6 @@
     // Primary Core App Rerouting Structural Manager
     const appRouter = {
       routeView() {
-        // Enforce structural element default hides
         document.getElementById('view-login').classList.add('hidden');
         document.getElementById('view-student').classList.add('hidden');
         document.getElementById('view-admin').classList.add('hidden');
@@ -1036,7 +1065,6 @@
         if (!STATE.token) {
           document.getElementById('view-login').classList.remove('hidden');
         } else {
-          document.getElementById('app-header').classList.remove('remove');
           document.getElementById('app-header').classList.remove('hidden');
           
           if (STATE.role === 'admin') {
@@ -1051,7 +1079,6 @@
       }
     };
 
-    // Standard Application Launch Entry Initialization hook
     window.addEventListener('DOMContentLoaded', () => appRouter.routeView());
   </script>
 </body>
