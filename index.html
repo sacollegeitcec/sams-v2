@@ -3,1091 +3,991 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Attendance Management Roster Workspace</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <title>Smart Attendance Management Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --primary: #0c2340;          
-      --primary-light: #1a365d;    
-      --accent-gold: #d4af37;      
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --text-main: #1f2937;
-      --text-dark: #1e293b;
-      --text-muted: #6b7280;
-      --bg-main: #f3f4f6;
-      --bg-card: #ffffff;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Roboto', sans-serif; }
-    body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 3rem; }
-    .hidden { display: none !important; }
-    .text-center { text-align: center; }
-    .text-muted { color: var(--text-muted); }
-    header { background-color: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-bottom: 3px solid var(--accent-gold); }
-    .btn-logout { background: transparent; border: 1px solid white; color: white; padding: 0.4rem 0.9rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; font-weight: 500; transition: background 0.2s; }
-    .btn-logout:hover { background: rgba(255,255,255,0.15); }
-    .container { max-width: 1400px; margin: 1.5rem auto; padding: 0 1rem; }
-    
-    .card { background: var(--bg-card); border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.05); padding: 1.75rem; margin-bottom: 1.5rem; border: 1px solid #e2e8f0; }
-    
-    .auth-wrapper-container { width: 100%; display: flex; justify-content: center; align-items: center; padding: 20px; }
-    .premium-auth-card { background: #ffffff; width: 100%; max-width: 440px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); overflow: hidden; border-top: 5px solid var(--accent-gold); }
-    .college-header-banner { background: #fdfdfd; padding: 32px 24px 20px 24px; text-align: center; border-bottom: 1px solid #e2e8f0; }
-    .college-logo-container { display: flex; justify-content: center; margin-bottom: 15px; }
-    .college-title { font-size: 21px; font-weight: 700; color: var(--primary); text-transform: uppercase; }
-    .college-subtitle { font-size: 13px; font-weight: 500; color: #64748b; letter-spacing: 1px; text-transform: uppercase; }
-    .system-tag { display: inline-block; background: #f1f5f9; color: var(--primary); font-size: 12px; font-weight: 600; padding: 6px 16px; border-radius: 9999px; border: 1px solid #cbd5e1; margin-top: 10px; }
-    .form-body-wrapper { padding: 28px; }
-
-    .form-group { margin-bottom: 1.25rem; }
-    .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 13px; color: var(--text-dark); }
-    .form-control { width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background-color: #f8fafc; color: var(--text-dark); }
-    .form-control:focus { outline: none; border-color: var(--primary); background-color: #ffffff; box-shadow: 0 0 0 3px rgba(12, 35, 64, 0.15); }
-    
-    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.65rem 1.25rem; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; gap: 0.5rem; font-size: 0.9rem; transition: all 0.2s; }
-    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
-    .btn:disabled { opacity: 0.5 !important; cursor: not-allowed !important; transform: none !important; }
-    .btn-success { background-color: var(--success); }
-    .btn-danger { background-color: var(--danger); }
-    .btn-secondary { background-color: #64748b; }
-    
-    .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }
-    .stat-card { background: white; padding: 1.5rem; border-radius: 12px; text-align: center; border-left: 6px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-top: 1px solid #edf2f7; border-right: 1px solid #edf2f7; border-bottom: 1px solid #edf2f7; }
-    .stat-card.val-present { border-left-color: var(--success); }
-    .stat-card.val-suspicious { border-left-color: var(--danger); }
-    .stat-card.val-percentage { border-left-color: var(--warning); }
-    .stat-num { font-size: 2.25rem; font-weight: 700; margin-top: 0.25rem; color: var(--text-dark); }
-    
-    .table-wrapper { width: 100%; overflow-x: auto; margin-top: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; background: white; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
-    th, td { padding: 1rem; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
-    th { background-color: #f8fafc; font-weight: 600; color: #475569; border-bottom: 2px solid #e2e8f0; }
-    tr:hover { background-color: #f8fafc; }
-    
-    .status-badge { display: inline-block; padding: 0.25rem 0.65rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-    .badge-present { background-color: #d1fae5; color: #065f46; }
-    .badge-suspicious { background-color: #fee2e2; color: #991b1b; }
-    .badge-entry { background-color: #e0f2fe; color: #0369a1; }
-    
-    .tab-btn { background: transparent; border: none; padding: 0.75rem 1.5rem; font-size: 0.95rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
-    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
-    
-    .action-icon { cursor: pointer; padding: 6px; border-radius: 6px; font-size: 1.2rem; display: inline-flex; align-items: center; margin: 0 2px; transition: background 0.2s; }
-    .action-icon.edit { color: var(--primary-light); }
-    .action-icon.delete { color: var(--danger); }
-    .action-icon:hover { background: #edf2f7; }
-    
-    .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
-    .chart-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; }
-    .chart-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
-    .chart-bar-container { display: flex; flex-direction: column; gap: 0.65rem; margin-top: 0.5rem; }
-    .chart-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; }
-    .chart-bar-outer { flex-grow: 1; height: 10px; background: #e2e8f0; border-radius: 9999px; margin: 0 10px; overflow: hidden; }
-    .chart-bar-inner { height: 100%; background: var(--primary-light); border-radius: 9999px; width: 0%; transition: width 0.5s ease-out; }
-    
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 15px; }
-    .modal-card { background: white; border-radius: 12px; width: 100%; max-width: 640px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; animation: slideDown 0.25s ease-out; }
-    .modal-header { background: var(--primary); color: white; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; }
-    .modal-body { padding: 1.5rem; max-height: 75vh; overflow-y: auto; }
-    .modal-footer { background: #f8fafc; padding: 1rem 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem; border-top: 1px solid #e2e8f0; }
-    
-    .pagination-bar { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 0.85rem; }
-    .search-filter-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; }
-
-    #toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.75rem; border-radius: 8px; color: white; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: translateY(250%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 99999; background: #1f2937; }
-    #toast.show { transform: translateY(0); }
-
-    /* RESPONSIVE CAMERA VIEWPORT CONSTRAINTS MATRIX */
-    .camera-box {
-      width: 100%;
-      max-width: 480px;
-      margin: 0 auto 1.5rem auto;
-      overflow: hidden;
-      border-radius: 12px;
-      border: 2px solid #cbd5e1;
-      background: #000;
-      position: relative;
-      aspect-ratio: 4 / 3;
-    }
-    .camera-box video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    #photo-canvas {
-      display: none !important;
-    }
-    
-    @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @media(max-width: 768px) { header { flex-direction: column; gap: 1rem; text-align: center; } .grid-stats { grid-template-columns: 1fr; } }
+    /* Smooth transition effects */
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    /* Hidden class for modal state management */
+    .hidden-view { display: none !important; }
   </style>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
 
-  <div id="toast">Operational Engine Packet Alert</div>
-
-  <header id="app-header" class="hidden">
-    <div style="display:flex; align-items:center; gap:0.75rem;">
-      <img src="logo.png" alt="Logo" style="height: 35px; width: 35px; object-fit: contain; border-radius: 50%; background: #ffffff;">
-      <h1 id="header-title" style="font-size: 1.25rem; font-weight:700; letter-spacing:0.5px;">Sontali Anchalik College ERP</h1>
+  <header class="bg-indigo-900 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-graduation-cap text-3xl text-indigo-300"></i>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">Smart Attendance System</h1>
+          <p class="text-xs text-indigo-200">Enterprise Core Frontend Interface</p>
+        </div>
+      </div>
+      <div id="userInfoHeader" class="hidden flex items-center space-x-4">
+        <div class="text-right">
+          <p id="userDisplayName" class="font-semibold text-sm">Loading...</p>
+          <p id="userDisplayRole" class="text-xs text-indigo-200 capitalize">Role</p>
+        </div>
+        <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded-lg font-medium transition duration-150 flex items-center gap-1">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
     </div>
-    <button class="btn-logout" onclick="actions.executeLogout()">
-      <span class="material-icons" style="font-size:1.1rem;">logout</span> Sign Out Terminal
-    </button>
   </header>
 
-  <div class="container">
-    
-    <div id="view-login" class="auth-wrapper-container" style="margin: 3rem auto;">
-      <div class="premium-auth-card">
-        <div class="college-header-banner">
-          <div class="college-logo-container">
-            <img src="logo.png" alt="College Logo" style="width:90px; height:90px; object-fit: contain; border-radius: 50%; border:3px solid var(--accent-gold); background: #ffffff; padding: 4px;">
-          </div>
-          <h1 class="college-title">Sontali Anchalik College</h1>
-          <div class="college-subtitle">Kamrup, Assam</div>
-          <span class="system-tag">Smart Attendance System Platform</span>
-        </div>
-        <div class="form-body-wrapper">
-          <form id="form-login" onsubmit="actions.executeLogin(event)">
-            <div class="form-group">
-              <label>System Account Username / Email</label>
-              <input type="text" id="login-username" class="form-control" placeholder="Enter security access login ID" required>
-            </div>
-            <div class="form-group">
-              <label>Security Access Password</label>
-              <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
-            </div>
-            <div class="form-group">
-              <label>Target Workspace Domain Level Scope</label>
-              <select id="login-role" class="form-control">
-                <option value="student">Student Portal Access Gate</option>
-                <option value="admin">Institutional System Administrator</option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-auth-submit" style="margin-top:1.5rem; width:100%;">
-              <span class="material-icons" style="font-size: 18px;">lock_open</span> Authenticate Credentials
-            </button>
-          </form>
-        </div>
-      </div>
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8">
+
+    <div id="toast" class="hidden-view fixed top-5 right-5 z-50 max-w-md p-4 rounded-xl shadow-lg flex items-center gap-3 transition-all duration-300 transform translate-y-0">
+      <div id="toastIcon" class="text-xl"></div>
+      <div id="toastMessage" class="text-sm font-medium"></div>
     </div>
 
-    <div id="view-student" class="hidden">
-      <div class="card text-center">
-        <h2>Welcome back, <span id="student-profile-name" style="color:var(--primary);">—</span></h2>
-        <p class="text-muted" style="margin-top: 0.25rem;">Academic Department Assignment Matrix: <span id="student-profile-dept" style="font-weight:600; color:#1f2937;">—</span></p>
-        <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #e2e8f0;">
+    <section id="loginView" class="fade-in max-w-md mx-auto my-12 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <div class="p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-2 text-center">System Login</h2>
+        <p class="text-sm text-gray-500 mb-6 text-center">Authenticate to sign your attendance or access administration tools.</p>
         
-        <div style="margin-bottom: 1.25rem;">
-          <p style="font-weight: 600; font-size:0.95rem; margin-bottom:0.5rem;">Today's Log Tracking Telemetry State Check:</p>
-          <span id="lbl-today-status" class="status-badge badge-suspicious">Awaiting synchronization...</span>
-        </div>
-        
-        <div class="camera-box">
-          <video id="video" autoplay playsinline></video>
-          <canvas id="photo-canvas" width="320" height="240"></canvas>
-        </div>
-        
-        <p id="lbl-gps-diagnostic" class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem; font-style: italic;">Awaiting operations deployment hooks...</p>
-        
-        <div style="display: flex; gap: 1rem; max-width: 480px; margin: 0 auto;">
-          <button id="btn-mark-entry" class="btn btn-success" style="flex:1; padding:0.85rem;" onclick="actions.processAttendanceTracking('entry')">
-            <span class="material-icons">login</span> Sign-In Entry
-          </button>
-          <button id="btn-mark-exit" class="btn btn-danger" style="flex:1; padding:0.85rem;" onclick="actions.processAttendanceTracking('exit')">
-            <span class="material-icons">logout</span> Sign-Out Exit
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div id="view-admin" class="hidden">
-      
-      <div class="grid-stats">
-        <div class="stat-card">Total Enrolled Cohort <div id="stat-total" class="stat-num">0</div></div>
-        <div class="stat-card val-present">Present Active (Today) <div id="stat-present" class="stat-num">0</div></div>
-        <div class="stat-card">Pending Exit Verification <div id="stat-entry-only" class="stat-num">0</div></div>
-        <div class="stat-card val-suspicious">Geofence Outlier Flags <div id="stat-suspicious" class="stat-num">0</div></div>
-        <div class="stat-card val-percentage">Attendance Ratio <div id="stat-ratio" class="stat-num">0%</div></div>
-      </div>
-
-      <div class="card">
-        <h3 style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; color:var(--primary);">
-          <span class="material-icons">analytics</span> Core Institutional Attendance Analytics Dash
-        </h3>
-        <div class="analytics-grid">
-          <div class="chart-box">
-            <div class="chart-title">Department-wise Registration Roster Scale</div>
-            <div id="chart-dept-bars" class="chart-bar-container"></div>
-          </div>
-          <div class="chart-box">
-            <div class="chart-title">Semester-wise Allocation Distribution Matrix</div>
-            <div id="chart-sem-bars" class="chart-bar-container"></div>
-          </div>
-          <div class="chart-box">
-            <div class="chart-title">Activity Timeline Capture Volume Metrics</div>
-            <div id="chart-daily-bars" class="chart-bar-container"></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="admin-extensions" class="card" style="margin-top: 1.5rem;">
-        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; overflow-x: auto;">
-          <button id="btn-tab-cohort" class="tab-btn active" onclick="adminUi.switchTab('tab-manage-students')">Manage Roster Cohort</button>
-          <button id="btn-tab-ledger" class="tab-btn" onclick="adminUi.switchTab('tab-reports')">Master Attendance Ledger</button>
-          <button id="btn-tab-logs" class="tab-btn" onclick="adminUi.switchTab('tab-system-logs')">Security Governance Audits</button>
-        </div>
-
-        <div id="tab-manage-students" class="admin-tab-content">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
-            <h3 style="color:var(--primary);">Student Roster Structural Control</h3>
-            <div style="display:flex; gap:0.5rem;">
-              <button class="btn btn-secondary" style="padding:0.5rem 1rem;" onclick="adminUi.triggerBulkFileInput()">
-                <span class="material-icons" style="font-size: 1.1rem;">cloud_upload</span> Bulk CSV Import
-              </button>
-              <input type="file" id="bulk-student-csv" accept=".csv" class="hidden" onchange="adminActions.handleBulkImport(event)">
-              <button class="btn btn-success" style="padding: 0.5rem 1rem;" onclick="adminUi.openStudentModal(false)">
-                <span class="material-icons" style="font-size: 1.1rem;">person_add</span> Register New Profile
-              </button>
+        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Select Security Role</label>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="border-2 border-indigo-600 rounded-lg p-3 flex items-center gap-2 justify-center cursor-pointer bg-indigo-50 text-indigo-900 font-semibold" id="roleStudentLabel">
+                <input type="radio" name="loginRole" value="student" checked onchange="toggleRoleSelect('student')" class="accent-indigo-600"> Student
+              </label>
+              <label class="border border-gray-200 rounded-lg p-3 flex items-center gap-2 justify-center cursor-pointer bg-white text-gray-700 font-medium" id="roleAdminLabel">
+                <input type="radio" name="loginRole" value="admin" onchange="toggleRoleSelect('admin')" class="accent-indigo-600"> Admin Portal
+              </label>
             </div>
           </div>
-
-          <div class="search-filter-box">
-            <input type="text" id="filter-student-search" class="form-control" placeholder="Search by name, roll, email..." oninput="adminActions.processRosterFiltering()">
-            <select id="filter-student-dept" class="form-control" onchange="adminActions.processRosterFiltering()">
-              <option value="ALL">All Academic Departments</option>
-            </select>
-            <select id="filter-student-sem" class="form-control" onchange="adminActions.processRosterFiltering()">
-              <option value="ALL">All Semesters</option>
-              <option value="1st">1st Semester</option>
-              <option value="2nd">2nd Semester</option>
-              <option value="3rd">3rd Semester</option>
-              <option value="4th">4th Semester</option>
-              <option value="5th">5th Semester</option>
-              <option value="6th">6th Semester</option>
-            </select>
-          </div>
-
-          <div class="table-wrapper">
-            <table id="tbl-students-list">
-              <thead>
-                <tr>
-                  <th onclick="adminActions.sortRoster('id')" style="cursor:pointer;">ID ↕</th>
-                  <th onclick="adminActions.sortRoster('name')" style="cursor:pointer;">Full Name ↕</th>
-                  <th onclick="adminActions.sortRoster('roll')" style="cursor:pointer;">Roll No ↕</th>
-                  <th>Reg No</th>
-                  <th>Department</th>
-                  <th>Semester</th>
-                  <th>Mobile</th>
-                  <th>Email</th>
-                  <th>Status</th>
-                  <th>Actions Management</th>
-                </tr>
-              </thead>
-              <tbody><tr><td colspan="10" class="text-center text-muted">Loading institutional cohort rows...</td></tr></tbody>
-            </table>
-          </div>
-          <div class="pagination-bar" id="roster-pagination"></div>
-        </div>
-
-        <div id="tab-reports" class="admin-tab-content hidden">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
-            <h3 style="color:var(--primary);">Historical Attendance Ledger Data Map</h3>
-            <div style="display:flex; gap:0.5rem;">
-              <button class="btn btn-secondary" style="padding:0.4rem 0.8rem;" onclick="adminActions.exportLedgerData('csv')"><span class="material-icons" style="font-size:1rem;">table_view</span> Export CSV</button>
-              <button class="btn btn-secondary" style="padding:0.4rem 0.8rem;" onclick="adminActions.exportLedgerData('print')"><span class="material-icons" style="font-size:1rem;">picture_as_pdf</span> Print / PDF</button>
+          <div>
+            <label id="usernameLabel" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <i class="fa-solid fa-envelope"></i>
+              </span>
+              <input type="text" id="loginUsername" required class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm" placeholder="student@institution.edu">
             </div>
           </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <i class="fa-solid fa-lock"></i>
+              </span>
+              <input type="password" id="loginPassword" required class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm" placeholder="••••••••">
+            </div>
+          </div>
+          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition duration-150 shadow-md">
+            Sign In <i class="fa-solid fa-right-to-bracket ml-1"></i>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <section id="studentView" class="hidden-view fade-in space-y-6">
+      <div class="bg-gradient-to-r from-indigo-800 to-indigo-950 rounded-2xl shadow-lg p-6 text-white flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <div>
+          <span class="bg-indigo-700 text-indigo-200 text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Student Profile Connected</span>
+          <h2 id="studentName" class="text-2xl font-bold mt-2">Loading Student...</h2>
+          <p id="studentMeta" class="text-sm text-indigo-200 mt-1">Roll No: — | Department: —</p>
+        </div>
+        <div class="bg-indigo-900/50 p-4 rounded-xl border border-indigo-700/50 text-center min-w-[180px]">
+          <p class="text-xs text-indigo-300 uppercase tracking-wider font-bold">Today's Status</p>
+          <p id="todayStatusText" class="text-lg font-extrabold mt-1 text-yellow-300">Evaluating...</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8 bg-white rounded-2xl shadow border border-gray-200 p-6 space-y-4">
+          <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2"><i class="fa-solid fa-location-crosshairs text-indigo-600"></i> Verification Diagnostics</h3>
           
-          <form id="form-report-filter" onsubmit="adminActions.generateReport(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: flex-end; margin-bottom: 1.5rem; background:#f8fafc; padding:1rem; border-radius:8px; border:1px solid #e2e8f0;">
-            <div class="form-group" style="margin-bottom:0;"><label>Start Query Horizon</label><input type="date" id="rep-start-date" class="form-control" required></div>
-            <div class="form-group" style="margin-bottom:0;"><label>End Query Horizon</label><input type="date" id="rep-end-date" class="form-control" required></div>
-            <div class="form-group" style="margin-bottom:0;">
-              <label>Target Department</label>
-              <select id="rep-dept-select" class="form-control"><option value="ALL">All Departments Grid Matrix</option></select>
+          <div id="geoDiagnostics" class="p-3 bg-gray-50 rounded-xl flex items-start gap-3 border border-gray-100">
+            <i class="fa-solid fa-circle-notch fa-spin text-indigo-600 mt-1"></i>
+            <div class="text-sm">
+              <p class="font-semibold text-gray-700" id="geoStatusTitle">Fetching Location Data...</p>
+              <p class="text-xs text-gray-500" id="geoStatusCoords">Requires browser location permission approval.</p>
             </div>
-            <button type="submit" class="btn btn-success" style="height: 38px;"><span class="material-icons">search</span> Query Records</button>
-          </form>
+          </div>
 
-          <div class="search-filter-box" style="margin-bottom:1rem; grid-template-columns:1fr 1fr;">
-            <input type="text" id="ledger-search" class="form-control" placeholder="Live search ledger fields..." oninput="adminActions.processLedgerFiltering()">
-            <select id="ledger-filter-status" class="form-control" onchange="adminActions.processLedgerFiltering()">
-              <option value="ALL">All Evaluation Flags</option>
-              <option value="PRESENT">PRESENT</option>
-              <option value="SUSPICIOUS">SUSPICIOUS</option>
+          <div class="space-y-3">
+            <label class="block text-sm font-semibold text-gray-700">Live Camera Verification (Required)</label>
+            <div class="relative w-full max-w-md mx-auto aspect-video bg-black rounded-xl overflow-hidden border border-gray-200 shadow-inner flex items-center justify-center">
+              <video id="webcam" autoplay playsinline class="w-full h-full object-cover"></video>
+              <canvas id="photoCanvas" class="hidden-view absolute inset-0 w-full h-full object-cover"></canvas>
+              <div id="cameraStatusMsg" class="absolute inset-0 bg-gray-900/90 text-white flex flex-col items-center justify-center text-xs p-4 text-center">
+                <i class="fa-solid fa-camera text-3xl mb-2 text-indigo-400"></i>
+                <p>Establishing camera interface pipeline...</p>
+              </div>
+            </div>
+            
+            <div class="flex justify-center gap-3">
+              <button id="snapBtn" onclick="capturePhoto()" class="bg-gray-800 hover:bg-gray-900 text-white text-xs px-4 py-2 rounded-lg font-medium transition duration-150 flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-camera"></i> Capture Snapshot
+              </button>
+              <button id="retakeBtn" onclick="resetPhoto()" class="hidden-view bg-amber-600 hover:bg-amber-700 text-white text-xs px-4 py-2 rounded-lg font-medium transition duration-150 flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-rotate-right"></i> Retake Photo
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+            <button id="btnSubmitEntry" onclick="submitAttendance('submitEntry')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-150 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-right-to-bracket"></i> Sign-In (Entry)
+            </button>
+            <button id="btnSubmitExit" onclick="submitAttendance('submitExit')" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-150 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-right-from-bracket"></i> Sign-Out (Exit)
+            </button>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 bg-white rounded-2xl shadow border border-gray-200 p-6 space-y-4">
+          <h3 class="text-md font-bold text-gray-900 flex items-center gap-2"><i class="fa-solid fa-shield-halved text-indigo-600"></i> Active Geofence Bounds</h3>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between border-b pb-2 border-gray-100">
+              <span class="text-gray-500">Target Center Lat:</span>
+              <span class="font-medium text-gray-800" id="geoTargetLat">Loading...</span>
+            </div>
+            <div class="flex justify-between border-b pb-2 border-gray-100">
+              <span class="text-gray-500">Target Center Lng:</span>
+              <span class="font-medium text-gray-800" id="geoTargetLng">Loading...</span>
+            </div>
+            <div class="flex justify-between border-b pb-2 border-gray-100">
+              <span class="text-gray-500">Radius Allowance:</span>
+              <span class="font-semibold text-indigo-600" id="geoTargetRad">Loading...</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-500">Your Calculated Distance:</span>
+              <span id="geoActualDistance" class="font-bold text-gray-800">Determining...</span>
+            </div>
+          </div>
+          <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+            <p class="text-xs text-indigo-900 leading-relaxed">
+              <strong>Notice:</strong> Submissions executed beyond authorized geofencing parameters or presenting unstable GPS accuracy metrics (>100m) will flag the record index as <span class="font-bold text-red-600">SUSPICIOUS</span>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="adminView" class="hidden-view fade-in space-y-6">
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl shadow border border-gray-200 p-5 flex items-center gap-4">
+          <div class="bg-indigo-100 text-indigo-600 p-3.5 rounded-lg text-xl"><i class="fa-solid fa-users"></i></div>
+          <div>
+            <p class="text-xs text-gray-500 uppercase tracking-wide font-bold">Total Students</p>
+            <p id="statTotalStudents" class="text-2xl font-black text-gray-900">—</p>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow border border-gray-200 p-5 flex items-center gap-4">
+          <div class="bg-green-100 text-green-600 p-3.5 rounded-lg text-xl"><i class="fa-solid fa-circle-check"></i></div>
+          <div>
+            <p class="text-xs text-gray-500 uppercase tracking-wide font-bold">Signed Present</p>
+            <p id="statPresent" class="text-2xl font-black text-gray-900">—</p>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow border border-gray-200 p-5 flex items-center gap-4">
+          <div class="bg-yellow-100 text-yellow-600 p-3.5 rounded-lg text-xl"><i class="fa-solid fa-circle-half-stroke"></i></div>
+          <div>
+            <p class="text-xs text-gray-500 uppercase tracking-wide font-bold">Checked-In Only</p>
+            <p id="statEntryOnly" class="text-2xl font-black text-gray-900">—</p>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow border border-gray-200 p-5 flex items-center gap-4">
+          <div class="bg-rose-100 text-rose-600 p-3.5 rounded-lg text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div>
+            <p class="text-xs text-gray-500 uppercase tracking-wide font-bold">Suspicious Geotags</p>
+            <p id="statSuspicious" class="text-2xl font-black text-gray-900">—</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-b border-gray-200">
+        <nav class="flex space-x-6">
+          <button onclick="switchAdminTab('stuTab')" id="btnTabStu" class="border-b-2 border-indigo-600 text-indigo-600 py-3 px-1 text-sm font-bold tracking-wide flex items-center gap-2">
+            <i class="fa-solid fa-user-gear"></i> Student Roster
+          </button>
+          <button onclick="switchAdminTab('reportTab')" id="btnTabReport" class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 text-sm font-semibold tracking-wide flex items-center gap-2">
+            <i class="fa-solid fa-file-invoice"></i> Reports Engine
+          </button>
+          <button onclick="switchAdminTab('logsTab')" id="btnTabLogs" class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 text-sm font-semibold tracking-wide flex items-center gap-2">
+            <i class="fa-solid fa-terminal"></i> System Audit Logs
+          </button>
+        </nav>
+      </div>
+
+      <div id="tabContentStudents" class="bg-white rounded-2xl shadow border border-gray-200 overflow-hidden">
+        <div class="p-4 bg-gray-50 border-b border-gray-200 flex flex-wrap justify-between items-center gap-3">
+          <h3 class="text-md font-bold text-gray-900">Student Directory & Profiles</h3>
+          <button onclick="openAddStudentModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-1.5 shadow">
+            <i class="fa-solid fa-plus"></i> Add New Student
+          </button>
+        </div>
+        <div class="overflow-x-auto w-full">
+          <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left font-bold text-gray-600">ID</th>
+                <th class="px-6 py-3 text-left font-bold text-gray-600">Name</th>
+                <th class="px-6 py-3 text-left font-bold text-gray-600">Roll/Reg</th>
+                <th class="px-6 py-3 text-left font-bold text-gray-600">Department</th>
+                <th class="px-6 py-3 text-left font-bold text-gray-600">Contact</th>
+                <th class="px-6 py-3 text-left font-bold text-gray-600">Status</th>
+                <th class="px-6 py-3 text-right font-bold text-gray-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentRosterTableBody" class="divide-y divide-gray-200 bg-white">
+              <tr>
+                <td colspan="7" class="px-6 py-8 text-center text-gray-400"><i class="fa-solid fa-rotate fa-spin mr-2"></i> Querying student dataset records...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="tabContentReports" class="hidden-view bg-white rounded-2xl shadow border border-gray-200 p-6 space-y-6">
+        <h3 class="text-lg font-bold text-gray-900">Configure Analytical Report Parameters</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Start Date</label>
+            <input type="date" id="reportStartDate" class="block w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">End Date</label>
+            <input type="date" id="reportEndDate" class="block w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Department Scope</label>
+            <select id="reportDeptSelect" class="block w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-indigo-500">
+              <option value="ALL">All Departments</option>
             </select>
           </div>
-
-          <div class="table-wrapper">
-            <table id="tbl-report-output">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Student ID</th>
-                  <th>Student Name</th>
-                  <th>Roll No</th>
-                  <th>Department</th>
-                  <th>Sign In</th>
-                  <th>Sign Out</th>
-                  <th>GPSSource</th>
-                  <th>Variance Delta</th>
-                  <th>Captured Media Link</th>
-                  <th>Status Flag</th>
-                </tr>
-              </thead>
-              <tbody><tr><td colspan="11" class="text-center text-muted">Execute target parameter scanning array query search above.</td></tr></tbody>
-            </table>
+          <div class="flex items-end">
+            <button onclick="fetchReport()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded-lg shadow flex items-center justify-center gap-2">
+              <i class="fa-solid fa-gears"></i> Process Report
+            </button>
           </div>
-          <div class="pagination-bar" id="ledger-pagination"></div>
         </div>
 
-        <div id="tab-system-logs" class="admin-tab-content hidden">
-          <h3 style="color:var(--primary); margin-bottom:1rem;">Security Governance Realtime Trace Audits</h3>
-          <div class="table-wrapper">
-            <table id="tbl-audit-logs">
-              <thead>
+        <div id="reportContainer" class="hidden-view space-y-4">
+          <div class="flex justify-between items-center border-t pt-6">
+            <h4 class="font-bold text-gray-800">Generated Attendance Log Summary</h4>
+            <button onclick="exportReportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-1.5 shadow">
+              <i class="fa-solid fa-file-export"></i> Download CSV Matrix
+            </button>
+          </div>
+          <div class="overflow-x-auto w-full border border-gray-100 rounded-xl">
+            <table class="min-w-full divide-y divide-gray-200 text-xs">
+              <thead class="bg-gray-50">
                 <tr>
-                  <th>Log Event Timestamp</th>
-                  <th>Profile Actor ID</th>
-                  <th>Action Type String</th>
-                  <th>Diagnostic Telemetry Trace Context</th>
-                  <th>Operational Status Code</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-600">ID</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-600">Student ID</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-600">Name</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-600">Department</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-600">Calendar Date</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-600">Sign-In</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-600">Sign-Out</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-600">Variance Distance</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-600">Media Captured</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-600">System Assessment</th>
                 </tr>
               </thead>
-              <tbody><tr><td colspan="5" class="text-center text-muted">Awaiting stream telemetry link mapping...</td></tr></tbody>
+              <tbody id="reportTableBody" class="divide-y divide-gray-200 bg-white">
+                <tr>
+                  <td colspan="10" class="px-4 py-8 text-center text-gray-400">Configure bounds and click Process Report.</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
-
       </div>
-    </div>
 
-  </div>
-
-  <div id="student-crud-modal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="modal-crud-title">Manage Student Profile Node</h3>
-        <span class="material-icons" style="cursor:pointer;" onclick="adminUi.closeStudentModal()">close</span>
+      <div id="tabContentLogs" class="hidden-view bg-white rounded-2xl shadow border border-gray-200 p-6 space-y-4">
+        <div class="flex justify-between items-center border-b pb-4">
+          <h3 class="text-md font-bold text-gray-900 flex items-center gap-2"><i class="fa-solid fa-terminal text-gray-700"></i> Backend Server Activity Logs</h3>
+          <button onclick="fetchAuditLogs()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5">
+            <i class="fa-solid fa-arrows-rotate"></i> Refresh Output
+          </button>
+        </div>
+        <div class="bg-gray-950 text-emerald-400 font-mono text-xs rounded-xl p-4 max-h-[400px] overflow-y-auto space-y-1.5 shadow-inner">
+          <div id="consoleLogsOutput">Initializing terminal connection...</div>
+        </div>
       </div>
-      <form id="form-student-crud" onsubmit="adminActions.saveStudentForm(event)">
-        <input type="hidden" id="crud-student-id">
-        <div class="modal-body" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-          <div class="form-group" style="grid-column: span 2;"><label>Full Legal Name</label><input type="text" id="crud-name" class="form-control" required></div>
-          <div class="form-group"><label>Roll Number</label><input type="text" id="crud-roll" class="form-control" required></div>
-          <div class="form-group"><label>University Registration Number</label><input type="text" id="crud-regNo" class="form-control" required></div>
-          <div class="form-group">
-            <label>Academic Department</label>
-            <input type="text" id="crud-dept" class="form-control" placeholder="e.g. Computer Science" required>
+    </section>
+  </main>
+
+  <div id="studentFormModal" class="hidden-view fixed inset-0 bg-gray-900/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-lg overflow-hidden fade-in">
+      <div class="px-6 py-4 bg-indigo-900 text-white flex justify-between items-center">
+        <h3 id="modalTitle" class="font-bold text-lg">Add New Student Profile</h3>
+        <button onclick="closeStudentModal()" class="text-white hover:text-indigo-200 text-xl"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="studentDataForm" onsubmit="handleStudentFormSubmit(event)" class="p-6 space-y-4">
+        <input type="hidden" id="formStudentId">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Full Name</label>
+            <input type="text" id="formStudentName" required class="w-full border border-gray-300 rounded-lg p-2 text-sm">
           </div>
-          <div class="form-group">
-            <label>Current Semester Assignment</label>
-            <select id="crud-sem" class="form-control">
-              <option value="1st">1st Semester</option><option value="2nd">2nd Semester</option>
-              <option value="3rd">3rd Semester</option><option value="4th">4th Semester</option>
-              <option value="5th">5th Semester</option><option value="6th">6th Semester</option>
-            </select>
-          </div>
-          <div class="form-group"><label>Mobile Contact Number</label><input type="text" id="crud-mobile" class="form-control" required></div>
-          <div class="form-group"><label>Email Address Roster Endpoint</label><input type="email" id="crud-email" class="form-control" required></div>
-          <div class="form-group" style="grid-column: span 2;" id="pass-field-wrapper">
-            <label>Security Authentication Password (Leave blank to preserve current mapping during modification updates)</label>
-            <input type="password" id="crud-password" class="form-control" placeholder="••••••••">
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Roll Number</label>
+            <input type="text" id="formStudentRoll" required class="w-full border border-gray-300 rounded-lg p-2 text-sm">
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="adminUi.closeStudentModal()">Cancel</button>
-          <button type="submit" class="btn btn-success" id="btn-crud-save-text">Synchronize Records</button>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Registration No</label>
+            <input type="text" id="formStudentReg" class="w-full border border-gray-300 rounded-lg p-2 text-sm" placeholder="Optional">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Department</label>
+            <input type="text" id="formStudentDept" required class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Semester</label>
+            <input type="text" id="formStudentSem" class="w-full border border-gray-300 rounded-lg p-2 text-sm" placeholder="1st">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Mobile Number</label>
+            <input type="text" id="formStudentMobile" class="w-full border border-gray-300 rounded-lg p-2 text-sm" placeholder="Optional">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Email Address</label>
+          <input type="email" id="formStudentEmail" required class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Password</label>
+          <input type="password" id="formStudentPassword" class="w-full border border-gray-300 rounded-lg p-2 text-sm" placeholder="Required for new profiles only">
+        </div>
+        <div class="flex justify-end gap-3 pt-4 border-t">
+          <button type="button" onclick="closeStudentModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg text-sm">Cancel</button>
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm">Save Changes</button>
         </div>
       </form>
     </div>
   </div>
 
-  <div id="student-profile-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:850px;">
-      <div class="modal-header">
-        <h3 id="modal-profile-title">Comprehensive Student Profile Dashboard View</h3>
-        <span class="material-icons" style="cursor:pointer;" onclick="adminUi.closeProfileModal()">close</span>
-      </div>
-      <div class="modal-body">
-        <div style="background:#f8fafc; padding:1.25rem; border-radius:8px; display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; border:1px solid #e2e8f0; margin-bottom:1.5rem;" id="profile-modal-meta-block">
-        </div>
-        <h4 style="color:var(--primary); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.25rem;">
-          <span class="material-icons">history</span> Tailored Track Chronological Attendance Logs History
-        </h4>
-        <div class="table-wrapper">
-          <table id="tbl-student-personal-history">
-            <thead>
-              <tr>
-                <th>Date</th><th>Sign In Time</th><th>Sign Out Time</th><th>Variance Delta</th><th>Status Check</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="adminUi.closeProfileModal()">Close View Profile</button>
-      </div>
-    </div>
-  </div>
+  <footer class="bg-gray-900 text-gray-400 py-6 border-t border-gray-800 mt-12 text-center text-xs">
+    <p>© 2026 Enterprise Smart Attendance Management Systems. All rights reserved.</p>
+  </footer>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyN5gxlKCUuYTWBQ0GXSZW9v-0bBj0jMLk5s3OXUSnE_423sp1MQRTZUvPDbFe1K9zxNg/exec"; 
+    // ==================== CONFIGURATION ====================
+    // IMPORTANT: Swap this URL with your deployed web application URL.
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzso4KD0eMmxvpq3HQkvTz4YiR0OrRFD9UPJzy7lHNdCLt8z3LMS64oAbMA3456rCvbtQ/exec";
 
-    const STATE = {
-      token: localStorage.getItem("att_token") || null,
-      role: localStorage.getItem("att_role") || null,
-      user: JSON.parse(localStorage.getItem("att_user")) || null,
-      cachedStudents: [],
-      filteredStudents: [],
-      cachedLedger: [],
-      filteredLedger: [],
-      pagination: {
-        rosterPage: 1,
-        rosterLimit: 10,
-        ledgerPage: 1,
-        ledgerLimit: 10
-      },
-      sort: { key: 'name', dir: 'asc' }
+    // Hardcoded center mapping coordinates matched with backend config
+    const GEOFENCE_CENTER = {
+      LAT: 26.147212,
+      LNG: 91.119787,
+      RADIUS: 250
     };
 
-    function showToast(msg, isErr=false) {
-      const t = document.getElementById('toast');
-      t.innerText = msg;
-      t.style.backgroundColor = isErr ? 'var(--danger)' : '#1f2937';
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 4000);
+    // ==================== SESSION MANAGEMENT ====================
+    let sessionToken = localStorage.getItem("att_session_token") || null;
+    let sessionUser = JSON.parse(localStorage.getItem("att_session_user")) || null;
+    let sessionRole = localStorage.getItem("att_session_role") || null;
+
+    // Active diagnostic tracking variables
+    let currentCoords = null;
+    let locationWatchId = null;
+    let activeStream = null;
+    let capturedImageBase64 = null;
+    let currentActiveReportRows = [];
+
+    // On Page Loaded
+    window.addEventListener("DOMContentLoaded", () => {
+      // Map static configuration values to Student Geofence diagnostics panel
+      document.getElementById("geoTargetLat").textContent = GEOFENCE_CENTER.LAT;
+      document.getElementById("geoTargetLng").textContent = GEOFENCE_CENTER.LNG;
+      document.getElementById("geoTargetRad").textContent = `${GEOFENCE_CENTER.RADIUS}m`;
+
+      if (sessionToken && sessionUser && sessionRole) {
+        initSessionView();
+      } else {
+        showView("loginView");
+      }
+    });
+
+    // Central Controller Routing Views
+    function showView(viewId) {
+      document.getElementById("loginView").classList.add("hidden-view");
+      document.getElementById("studentView").classList.add("hidden-view");
+      document.getElementById("adminView").classList.add("hidden-view");
+      document.getElementById("userInfoHeader").classList.add("hidden");
+
+      document.getElementById(viewId).classList.remove("hidden-view");
+      if (viewId !== "loginView") {
+        document.getElementById("userInfoHeader").classList.remove("hidden");
+        document.getElementById("userDisplayName").textContent = sessionUser.name;
+        document.getElementById("userDisplayRole").textContent = sessionRole;
+      }
     }
 
-    async function makeApiCall(packet) {
+    // Role radio buttons helper
+    function toggleRoleSelect(role) {
+      const studentLbl = document.getElementById("roleStudentLabel");
+      const adminLbl = document.getElementById("roleAdminLabel");
+      const usernameLbl = document.getElementById("usernameLabel");
+      const usernameInp = document.getElementById("loginUsername");
+
+      if (role === "student") {
+        studentLbl.className = "border-2 border-indigo-600 rounded-lg p-3 flex items-center gap-2 justify-center cursor-pointer bg-indigo-50 text-indigo-900 font-semibold";
+        adminLbl.className = "border border-gray-200 rounded-lg p-3 flex items-center gap-2 justify-center cursor-pointer bg-white text-gray-700 font-medium";
+        usernameLbl.textContent = "Email Address";
+        usernameInp.placeholder = "student@institution.edu";
+      } else {
+        adminLbl.className = "border-2 border-indigo-600 rounded-lg p-3 flex items-center gap-2 justify-center cursor-pointer bg-indigo-50 text-indigo-900 font-semibold";
+        studentLbl.className = "border border-gray-200 rounded-lg p-3 flex items-center gap-2 justify-center cursor-pointer bg-white text-gray-700 font-medium";
+        usernameLbl.textContent = "Administrator Username";
+        usernameInp.placeholder = "admin";
+      }
+    }
+
+    // Initialize session state views
+    function initSessionView() {
+      if (sessionRole === "admin") {
+        showView("adminView");
+        fetchAdminDashboard();
+        fetchRoster();
+        fetchDepartmentDropdown();
+      } else if (sessionRole === "student") {
+        showView("studentView");
+        document.getElementById("studentName").textContent = sessionUser.name;
+        document.getElementById("studentMeta").textContent = `Roll No: ${sessionUser.roll} | Department: ${sessionUser.department}`;
+        fetchTodayStatus();
+        startLocationWatch();
+        startCamera();
+      }
+    }
+
+    // Toast alert dispatcher
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("toast");
+      const icon = document.getElementById("toastIcon");
+      const msg = document.getElementById("toastMessage");
+
+      if (type === "success") {
+        toast.className = "fixed top-5 right-5 z-50 max-w-md p-4 rounded-xl shadow-lg flex items-center gap-3 transition-all duration-300 bg-emerald-50 border border-emerald-100 text-emerald-900";
+        icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i>';
+      } else {
+        toast.className = "fixed top-5 right-5 z-50 max-w-md p-4 rounded-xl shadow-lg flex items-center gap-3 transition-all duration-300 bg-rose-50 border border-rose-100 text-rose-900";
+        icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-rose-600"></i>';
+      }
+
+      msg.textContent = message;
+      toast.classList.remove("hidden-view");
+
+      setTimeout(() => {
+        toast.classList.add("hidden-view");
+      }, 5000);
+    }
+
+    // Core Async HTTP post request engine to script gateway
+    async function executeApiCall(action, payload = {}) {
       try {
-        const response = await fetch(API_URL, {
+        const body = {
+          action: action,
+          token: sessionToken,
+          payload: payload
+        };
+
+        const response = await fetch(WEB_APP_URL, {
           method: "POST",
           mode: "cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(packet)
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify(body)
         });
-        if (!response.ok) throw new Error("HTTP state transport network structural drop.");
-        return await response.json();
+
+        if (!response.ok) {
+          throw new Error(`HTTP network fault error status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
       } catch (err) {
-        showToast("Dynamic Transport API Mismatch Error: " + err.message, true);
+        showToast(`Request exception core loop error: ${err.message}`, "error");
         return { success: false, message: err.message };
       }
     }
 
-    const actions = {
-      async executeLogin(e) {
-        e.preventDefault();
-        const u = document.getElementById('login-username').value.trim();
-        const p = document.getElementById('login-password').value;
-        const r = document.getElementById('login-role').value;
-        
-        showToast("Verifying identity token matrix mapping...");
-        const res = await makeApiCall({ action: "login", username: u, password: p, role: r });
-        
-        if (res.success) {
-          STATE.token = res.token;
-          STATE.role = res.role;
-          STATE.user = res.user;
-          localStorage.setItem("att_token", res.token);
-          localStorage.setItem("att_role", res.role);
-          localStorage.setItem("att_user", JSON.stringify(res.user));
-          
-          showToast("Access token granted cleanly. Loading workspace view...");
-          appRouter.routeView();
-        } else {
-          showToast(res.message, true);
-        }
-      },
+    // ==================== CONTROLLERS: STUDENT ACTIONS ====================
 
-      executeLogout() {
-        if(STATE.videoStream) {
-          STATE.videoStream.getTracks().forEach(t => t.stop());
-        }
-        makeApiCall({ action: "logout", token: STATE.token, payload: { userId: STATE.user?.id } });
-        STATE.token = null; STATE.role = null; STATE.user = null;
-        localStorage.clear();
-        appRouter.routeView();
-        showToast("Security Session Logged Out Cleanly.");
-      },
+    // Retrieve today's status
+    async function fetchTodayStatus() {
+      const res = await executeApiCall("getTodayStatus");
+      const statusText = document.getElementById("todayStatusText");
 
-      async initStudentPortal() {
-        document.getElementById('student-profile-name').innerText = STATE.user.name;
-        document.getElementById('student-profile-dept').innerText = STATE.user.department;
-        
-        const btnEntry = document.getElementById('btn-mark-entry');
-        const btnExit = document.getElementById('btn-mark-exit');
-        
-        // Reset disabled states by default
-        btnEntry.disabled = false;
-        btnExit.disabled = false;
-        
-        const statusRes = await makeApiCall({ action: "getTodayStatus", token: STATE.token });
-        const lbl = document.getElementById('lbl-today-status');
-        if (statusRes.success && statusRes.record) {
-          const rec = statusRes.record;
-          lbl.innerText = `Signed In: ${rec.entryTime || '—'} | Signed Out: ${rec.exitTime || 'Awaiting Exit'} [${rec.status}]`;
-          lbl.className = "status-badge " + (rec.status === 'SUSPICIOUS' ? 'badge-suspicious' : rec.exitTime ? 'badge-present' : 'badge-entry');
-          
-          if (rec.entryTime) {
-            // Entry has already been registered today, keep Sign-In Entry button disabled on load
-            btnEntry.disabled = true;
-          }
-          if (rec.exitTime) {
-            btnExit.disabled = true;
-          }
-        } else {
-          lbl.innerText = "No active tracker state logged for today.";
-          lbl.className = "status-badge badge-suspicious";
-        }
-        
-        const video = document.getElementById('video');
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
-          .then(stream => { 
-            STATE.videoStream = stream; 
-            video.srcObject = stream; 
-          })
-          .catch(err => {
-            showToast("Camera Resource Stream Locked: " + err.message, true);
-            document.getElementById('lbl-gps-diagnostic').innerText = "Camera missing hardware validation keys.";
-          });
-          
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            pos => {
-              document.getElementById('lbl-gps-diagnostic').innerText = `GPS Grid Locked: Accurately mapping within ${Math.round(pos.coords.accuracy)} meters variance threshold context.`;
-              STATE.lastCoords = pos.coords;
-            },
-            err => {
-              document.getElementById('lbl-gps-diagnostic').innerText = "GPS Lat/Lng Hardware Engine Fault: " + err.message;
-            },
-            { enableHighAccuracy: true }
-          );
-        }
-      },
-
-      async processAttendanceTracking(type) {
-        if (!STATE.lastCoords) {
-          showToast("Awaiting GPS synchronization parameters alignment. Standby.", true);
-          return;
-        }
-
-        const btnEntry = document.getElementById('btn-mark-entry');
-        const btnExit = document.getElementById('btn-mark-exit');
-
-        // Immediately disable buttons on the interface to prevent double-clicks
-        if (type === 'entry') {
-          if (btnEntry.disabled) return;
-          btnEntry.disabled = true;
-        } else {
-          if (btnExit.disabled) return;
-          btnExit.disabled = true;
-        }
-        
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('photo-canvas');
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, 320, 240);
-        const imageB64 = canvas.toDataURL('image/jpeg', 0.85);
-        
-        showToast(`Transmitting telemetry packets for ${type} validation mapping...`);
-        const act = type === 'entry' ? 'submitEntry' : 'submitExit';
-        
-        const res = await makeApiCall({
-          action: act,
-          token: STATE.token,
-          payload: {
-            lat: STATE.lastCoords.latitude,
-            lng: STATE.lastCoords.longitude,
-            accuracy: STATE.lastCoords.accuracy,
-            gpsSource: "browser_high_precision_hardware",
-            imageB64: imageB64
-          }
-        });
-        
-        if(res.success) {
-          showToast(res.message);
-          // Sync state and keep button disabled
-          actions.initStudentPortal();
-        } else {
-          showToast(res.message, true);
-          // Sync state (re-enables button if validation allows, or displays today's locked state)
-          actions.initStudentPortal();
-        }
+      if (res.success && res.record) {
+        let text = `${res.record.status}`;
+        if (res.record.entryTime) text += ` (In: ${res.record.entryTime}`;
+        if (res.record.exitTime) text += ` | Out: ${res.record.exitTime})`;
+        else text += ` | Signed In)`;
+        statusText.textContent = text;
+        statusText.className = "text-md font-extrabold mt-1 text-emerald-400";
+      } else {
+        statusText.textContent = "No Sign-In logged today.";
+        statusText.className = "text-md font-semibold mt-1 text-yellow-500";
       }
-    };
+    }
 
-    const adminActions = {
-      async loadDashboardContext() {
-        showToast("Synchronizing metrics from data repository ecosystem...");
-        const res = await makeApiCall({ action: "getDashboardStats", token: STATE.token });
-        if(res.success) {
-          const d = res.data;
-          document.getElementById('stat-total').innerText = d.totalStudents;
-          document.getElementById('stat-present').innerText = d.present;
-          document.getElementById('stat-entry-only').innerText = d.entryOnly;
-          document.getElementById('stat-suspicious').innerText = d.suspicious;
-          
-          const ratio = d.totalStudents > 0 ? Math.round(((d.present + d.entryOnly) / d.totalStudents) * 100) : 0;
-          document.getElementById('stat-ratio').innerText = ratio + "%";
-          
-          if (d.analytics) {
-            adminActions.renderChartBarGroup('chart-dept-bars', d.analytics.departments);
-            adminActions.renderChartBarGroup('chart-sem-bars', d.analytics.semesters);
-            adminActions.renderChartBarGroup('chart-daily-bars', d.analytics.daily);
-          }
-        }
-      },
+    // Geolocation API watcher loop
+    function startLocationWatch() {
+      const geoBox = document.getElementById("geoDiagnostics");
+      const geoTitle = document.getElementById("geoStatusTitle");
+      const geoCoords = document.getElementById("geoStatusCoords");
+      const geoDistText = document.getElementById("geoActualDistance");
 
-      renderChartBarGroup(elementId, datasetObj) {
-        const container = document.getElementById(elementId);
-        if (!container) return;
-        container.innerHTML = "";
-        const keys = Object.keys(datasetObj || {});
-        if(keys.length === 0) { container.innerHTML = "<div class='text-muted' style='font-size:0.8rem;'>No tracked telemetry sets.</div>"; return; }
-        
-        const maxVal = Math.max(...Object.values(datasetObj), 1);
-        keys.forEach(k => {
-          const val = datasetObj[k];
-          const pct = Math.round((val / maxVal) * 100);
-          container.innerHTML += `
-            <div class="chart-row">
-              <span style="width:75px; font-weight:500; text-overflow:ellipsis; overflow:hidden;">${k}</span>
-              <div class="chart-bar-outer"><div class="chart-bar-inner" style="width:${pct}%"></div></div>
-              <span style="font-weight:700; color:var(--primary); width:25px; text-align:right;">${val}</span>
-            </div>`;
-        });
-      },
-
-      async syncRosterDataset() {
-        const res = await makeApiCall({ action: "getAllStudents", token: STATE.token });
-        if(res.success) {
-          STATE.cachedStudents = res.data.students;
-          adminActions.populateDeptFilters(res.data.students);
-          adminActions.processRosterFiltering();
-        }
-      },
-
-      populateDeptFilters(students) {
-        const depts = new Set();
-        students.forEach(s => { if(s.department) depts.add(s.department); });
-        const filterSel = document.getElementById('filter-student-dept');
-        const reportSel = document.getElementById('rep-dept-select');
-        
-        if (filterSel) filterSel.innerHTML = '<option value="ALL">All Academic Departments</option>';
-        if (reportSel) reportSel.innerHTML = '<option value="ALL">All Departments Grid Matrix</option>';
-        
-        depts.forEach(d => {
-          const opt = `<option value="${d}">${d}</option>`;
-          if (filterSel) filterSel.innerHTML += opt;
-          if (reportSel) reportSel.innerHTML += opt;
-        });
-      },
-
-      processRosterFiltering() {
-        const query = document.getElementById('filter-student-search').value.toLowerCase().trim();
-        const dept = document.getElementById('filter-student-dept').value;
-        const sem = document.getElementById('filter-student-sem').value;
-        
-        STATE.filteredStudents = STATE.cachedStudents.filter(s => {
-          const sName = s.name ? String(s.name).toLowerCase() : "";
-          const sId = s.id ? String(s.id).toLowerCase() : "";
-          const sRoll = s.roll ? String(s.roll).toLowerCase() : "";
-          const sEmail = s.email ? String(s.email).toLowerCase() : "";
-
-          const mQuery = !query || sName.includes(query) || sId.includes(query) || sRoll.includes(query) || sEmail.includes(query);
-          const mDept = dept === 'ALL' || s.department === dept;
-          const mSem = sem === 'ALL' || s.semester === sem;
-          return mQuery && mDept && mSem;
-        });
-        
-        STATE.filteredStudents.sort((a, b) => {
-          let key = STATE.sort.key;
-          let valA = a[key] !== undefined ? String(a[key]) : "";
-          let valB = b[key] !== undefined ? String(b[key]) : "";
-          
-          return STATE.sort.dir === 'asc' 
-            ? valA.localeCompare(valB, undefined, {numeric: true, sensitivity: 'base'}) 
-            : valB.localeCompare(valA, undefined, {numeric: true, sensitivity: 'base'});
-        });
-        
-        STATE.pagination.rosterPage = 1;
-        adminActions.renderRosterTable();
-      },
-
-
-      sortRoster(key) {
-        if(STATE.sort.key === key) {
-          STATE.sort.dir = STATE.sort.dir === 'asc' ? 'desc' : 'asc';
-        } else {
-          STATE.sort.key = key; STATE.sort.dir = 'asc';
-        }
-        adminActions.processRosterFiltering();
-      },
-
-      renderRosterTable() {
-        const tbody = document.querySelector('#tbl-students-list tbody');
-        if (!tbody) return;
-        tbody.innerHTML = "";
-        
-        const count = STATE.filteredStudents.length;
-        if(count === 0) {
-          tbody.innerHTML = "<tr><td colspan='10' class='text-center text-muted'>No current cohort records match structural matrix query scope constraints.</td></tr>";
-          document.getElementById('roster-pagination').innerHTML = "";
-          return;
-        }
-        
-        const p = STATE.pagination;
-        const startIdx = (p.rosterPage - 1) * p.rosterLimit;
-        const endIdx = Math.min(startIdx + p.rosterLimit, count);
-        const pages = Math.ceil(count / p.rosterLimit);
-        
-        for(let i=startIdx; i<endIdx; i++) {
-          const s = STATE.filteredStudents[i];
-          tbody.innerHTML += `
-            <tr>
-              <td><code>${s.id}</code></td>
-              <td><strong>${s.name}</strong></td>
-              <td>${s.roll}</td>
-              <td>${s.regNo || '—'}</td>
-              <td><small>${s.department}</small></td>
-              <td>${s.semester || '—'}</td>
-              <td>${s.mobile || '—'}</td>
-              <td>${s.email}</td>
-              <td><span class='status-badge ${s.status === 'active'?'badge-present':'badge-suspicious'}'>${s.status}</span></td>
-              <td>
-                <span class="material-icons action-icon" style="color:var(--success);" title="View History" onclick="adminActions.viewPersonalProfile('${s.id}')">visibility</span>
-                <span class="material-icons action-icon edit" title="Edit Profile" onclick="adminUi.openStudentModal(true, '${s.id}')">edit</span>
-                <span class="material-icons action-icon delete" title="Purge Record" onclick="adminActions.purgeStudentProfile('${s.id}')">delete_forever</span>
-              </td>
-            </tr>`;
-        }
-        
-        let pagHtml = `<div>Showing records <b>${startIdx+1}-${endIdx}</b> of <b>${count}</b></div><div style="display:flex; gap:0.25rem;">`;
-        for(let j=1; j<=pages; j++) {
-          pagHtml += `<button class="btn" style="padding:0.25rem 0.5rem; background:${j===p.rosterPage?'var(--primary-light)':'#cbd5e1'}; color:${j===p.rosterPage?'white':'#1f2937'};" onclick="STATE.pagination.rosterPage=${j}; adminActions.renderRosterTable();">${j}</button>`;
-        }
-        pagHtml += `</div>`;
-        document.getElementById('roster-pagination').innerHTML = pagHtml;
-      },
-
-      async saveStudentForm(e) {
-        e.preventDefault();
-        const id = document.getElementById('crud-student-id').value;
-        const payload = {
-          id: id || undefined,
-          name: document.getElementById('crud-name').value.trim(),
-          roll: document.getElementById('crud-roll').value.trim(),
-          regNo: document.getElementById('crud-regNo').value.trim(),
-          department: document.getElementById('crud-dept').value.trim(),
-          semester: document.getElementById('crud-sem').value,
-          mobile: document.getElementById('crud-mobile').value.trim(),
-          email: document.getElementById('crud-email').value.trim(),
-          password: document.getElementById('crud-password').value || undefined
-        };
-        
-        const action = id ? "updateStudent" : "addStudent";
-        showToast("Synchronizing profile modifications across relational index arrays...");
-        
-        const res = await makeApiCall({ action, token: STATE.token, payload });
-        if(res.success) {
-          showToast(res.message);
-          adminUi.closeStudentModal();
-          adminActions.syncRosterDataset();
-          adminActions.loadDashboardContext();
-        } else {
-          showToast(res.message, true);
-        }
-      },
-
-      async purgeStudentProfile(id) {
-        if(!confirm(`Security Operation: Are you absolutely certain you want to purge profile node [ ${id} ] entirely from the Google Sheet records database? This cannot be undone.`)) return;
-        showToast("Dropping row execution target...");
-        const res = await makeApiCall({ action: "deleteStudent", token: STATE.token, payload: { id } });
-        if(res.success) {
-          showToast(res.message);
-          adminActions.syncRosterDataset();
-          adminActions.loadDashboardContext();
-        } else {
-          showToast(res.message, true);
-        }
-      },
-
-      handleBulkImport(event) {
-        const file = event.target.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-          const text = e.target.result;
-          const lines = text.split("\n");
-          let studentsList = [];
-          
-          for(let i=1; i<lines.length; i++) {
-            if(!lines[i].trim()) continue;
-            const cols = lines[i].split(",");
-            if(cols.length >= 5) {
-              studentsList.push({
-                name: cols[0]?.trim(),
-                roll: cols[1]?.trim(),
-                regNo: cols[2]?.trim(),
-                department: cols[3]?.trim(),
-                semester: cols[4]?.trim(),
-                mobile: cols[5]?.trim(),
-                email: cols[6]?.trim()
-              });
-            }
-          }
-          
-          if(studentsList.length === 0) { showToast("CSV layout processing error or row index empty.", true); return; }
-          showToast(`Processing bulk upload array pipeline for ${studentsList.length} metadata sets...`);
-          const res = await makeApiCall({ action: "bulkImportStudents", token: STATE.token, payload: { studentsList } });
-          if(res.success) {
-            showToast(res.message);
-            adminActions.syncRosterDataset();
-            adminActions.loadDashboardContext();
-          }
-        };
-        reader.readAsText(file);
-      },
-
-      async generateReport(e) {
-        if(e) e.preventDefault();
-        const start = document.getElementById('rep-start-date').value;
-        const end = document.getElementById('rep-end-date').value;
-        const dept = document.getElementById('rep-dept-select').value;
-        
-        showToast("Scanning core archival logging matrices...");
-        const res = await makeApiCall({ action: "generateReport", token: STATE.token, payload: { start, end, dept } });
-        if(res.success) {
-          STATE.cachedLedger = res.data.rows;
-          adminActions.processLedgerFiltering();
-        }
-      },
-
-      processLedgerFiltering() {
-        const query = document.getElementById('ledger-search').value.toLowerCase().trim();
-        const status = document.getElementById('ledger-filter-status').value;
-        
-        STATE.filteredLedger = STATE.cachedLedger.filter(r => {
-          const mQ = !query || r.name.toLowerCase().includes(query) || r.studentId.toLowerCase().includes(query) || r.roll.toLowerCase().includes(query);
-          const mS = status === 'ALL' || r.status === status;
-          return mQ && mS;
-        });
-        
-        STATE.pagination.ledgerPage = 1;
-        adminActions.renderLedgerTable();
-      },
-
-      renderLedgerTable() {
-        const tbody = document.querySelector('#tbl-report-output tbody');
-        if (!tbody) return;
-        tbody.innerHTML = "";
-        const count = STATE.filteredLedger.length;
-        if(count === 0) {
-          tbody.innerHTML = "<tr><td colspan='11' class='text-center text-muted'>Empty matrix query returns. No matching cells.</td></tr>";
-          document.getElementById('ledger-pagination').innerHTML = "";
-          return;
-        }
-        
-        const p = STATE.pagination;
-        const startIdx = (p.ledgerPage - 1) * p.ledgerLimit;
-        const endIdx = Math.min(startIdx + p.ledgerLimit, count);
-        const pages = Math.ceil(count / p.ledgerLimit);
-        
-        for(let i=startIdx; i<endIdx; i++) {
-          const r = STATE.filteredLedger[i];
-          const badge = r.status === 'SUSPICIOUS' ? 'badge-suspicious' : r.status === 'PRESENT' ? 'badge-present' : 'badge-entry';
-          const link = r.media ? `<a href="${r.media}" target="_blank" style="color:var(--primary-light); font-weight:600; display:inline-flex; align-items:center; gap:2px;"><span class='material-icons' style='font-size:1rem;'>photo_camera</span> Image</a>` : '—';
-          
-          tbody.innerHTML += `
-            <tr>
-              <td><code>${r.date}</code></td>
-              <td><code>${r.studentId}</code></td>
-              <td><strong>${r.name}</strong></td>
-              <td>${r.roll}</td>
-              <td>${r.department}</td>
-              <td>${r.entryTime || '—'}</td>
-              <td>${r.exitTime || '—'}</td>
-              <td><small class='text-muted'>${r.gpsSource}</small></td>
-              <td>${r.distance}</td>
-              <td>${link}</td>
-              <td><span class='status-badge ${badge}'>${r.status}</span></td>
-            </tr>`;
-        }
-        
-        let pagHtml = `<div>Displaying indices <b>${startIdx+1}-${endIdx}</b> of <b>${count}</b> Ledger Records</div><div style="display:flex; gap:0.25rem;">`;
-        for(let j=1; j<=pages; j++) {
-          pagHtml += `<button class="btn" style="padding:0.25rem 0.5rem; background:${j===p.ledgerPage?'var(--primary-light)':'#cbd5e1'}; color:${j===p.ledgerPage?'white':'#1f2937'};" onclick="STATE.pagination.ledgerPage=${j}; adminActions.renderLedgerTable();">${j}</button>`;
-        }
-        pagHtml += `</div>`;
-        document.getElementById('ledger-pagination').innerHTML = pagHtml;
-      },
-
-      async viewPersonalProfile(studentId) {
-        const s = STATE.cachedStudents.find(x => x.id === studentId);
-        if(!s) return;
-        
-        document.getElementById('modal-profile-title').innerText = `Profile Portfolio: ${s.name}`;
-        
-        const meta = document.getElementById('profile-modal-meta-block');
-        meta.innerHTML = `
-          <div><b>Roster System ID:</b> <code>${s.id}</code></div>
-          <div><b>Roll Number Reference:</b> ${s.roll}</div>
-          <div><b>Registration Identification:</b> ${s.regNo || 'N/A'}</div>
-          <div><b>Institutional Branch:</b> ${s.department}</div>
-          <div><b>Semester Classification:</b> ${s.semester}</div>
-          <div><b>Mobile Vector:</b> ${s.mobile || 'N/A'}</div>
-          <div><b>Email Endpoint:</b> ${s.email}</div>
-          <div><b>Account Core Visibility:</b> ${s.status.toUpperCase()}</div>
-        `;
-        
-        showToast("Compiling contextual history trail tracking logs...");
-        const res = await makeApiCall({ action: "generateReport", token: STATE.token, payload: { start: "", end: "", dept: "ALL" } });
-        
-        const tbody = document.querySelector('#tbl-student-personal-history tbody');
-        if (tbody) {
-          tbody.innerHTML = "";
-          if(res.success) {
-            const personalLogs = res.data.rows.filter(x => x.studentId === studentId);
-            if(personalLogs.length === 0) {
-              tbody.innerHTML = "<tr><td colspan='5' class='text-center text-muted'>No dynamic history logs registered for this node.</td></tr>";
-            } else {
-              personalLogs.forEach(l => {
-                const badge = l.status === 'SUSPICIOUS' ? 'badge-suspicious' : l.status === 'PRESENT' ? 'badge-present' : 'badge-entry';
-                tbody.innerHTML += `
-                  <tr>
-                    <td><code>${l.date}</code></td>
-                    <td>${l.entryTime || '—'}</td>
-                    <td>${l.exitTime || '—'}</td>
-                    <td>${l.distance}</td>
-                    <td><span class='status-badge ${badge}'>${l.status}</span></td>
-                  </tr>`;
-              });
-            }
-          }
-        }
-        document.getElementById('student-profile-modal').classList.remove('hidden');
-      },
-
-      exportLedgerData(type) {
-        if(STATE.filteredLedger.length === 0) { showToast("No processed array records sets available for extraction compilation.", true); return; }
-        if(type === 'csv') {
-          let csv = "Date,StudentID,Name,RollNo,Department,SignIn,SignOut,GPSSource,Distance,Status\n";
-          STATE.filteredLedger.forEach(r => {
-            csv += `"${r.date}","${r.studentId}","${r.name}","${r.roll}","${r.department}","${r.entryTime}","${r.exitTime}","${r.gpsSource}","${r.distance}","${r.status}"\n`;
-          });
-          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(blob);
-          link.setAttribute("download", `Attendance_Ledger_Extract_${Date.now()}.csv`);
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          showToast("CSV dataset extraction package exported cleanly.");
-        } else if(type === 'print') {
-          window.print();
-        }
-      },
-
-      async loadAuditTrace() {
-        const res = await makeApiCall({ action: "getSystemLogs", token: STATE.token, payload: { maxRows: 60 } });
-        if(res.success) {
-          const tbody = document.querySelector('#tbl-audit-logs tbody');
-          if (!tbody) return;
-          tbody.innerHTML = "";
-          res.data.logs.forEach(l => {
-            tbody.innerHTML += `
-              <tr>
-                <td><small>${new Date(l.timestamp).toLocaleString()}</small></td>
-                <td><code>${l.userId}</code></td>
-                <td><strong style='color:var(--primary-light);'>${l.action}</strong></td>
-                <td><span class='text-muted' style='font-size:0.8rem;'>${l.ip}</span></td>
-                <td><span class='status-badge ${l.status==='Success'?'badge-present':'badge-suspicious'}'>${l.status}</span></td>
-              </tr>`;
-          });
-        }
+      if (!navigator.geolocation) {
+        geoBox.className = "p-3 bg-rose-50 rounded-xl flex items-start gap-3 border border-rose-100";
+        geoTitle.className = "font-semibold text-rose-700";
+        geoTitle.textContent = "GPS Support Not Available";
+        geoCoords.textContent = "Browser does not support geolocation metrics.";
+        return;
       }
-    };
 
-    const adminUi = {
-      switchTab(tabId) {
-        document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.add('hidden'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.remove('hidden');
-        
-        if(tabId === 'tab-manage-students') {
-          document.getElementById('btn-tab-cohort').classList.add('active');
-          adminActions.syncRosterDataset();
-        } else if(tabId === 'tab-reports') {
-          document.getElementById('btn-tab-ledger').classList.add('active');
-        } else if(tabId === 'tab-system-logs') {
-          document.getElementById('btn-tab-logs').classList.add('active');
-          adminActions.loadAuditTrace();
-        }
-      },
+      locationWatchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          currentCoords = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            accuracy: pos.coords.accuracy
+          };
 
-      triggerBulkFileInput() { document.getElementById('bulk-student-csv').click(); },
+          // Calculate geofence distance
+          const distance = calculateGeofenceDistance(currentCoords.lat, currentCoords.lng);
+          const isWithin = distance <= GEOFENCE_CENTER.RADIUS;
 
-      openStudentModal(isEdit, studentId) {
-        const form = document.getElementById('form-student-crud');
-        form.reset();
-        
-        if(isEdit && studentId !== undefined) {
-          const s = STATE.cachedStudents.find(x => x.id === studentId);
-          if(!s) return;
+          geoBox.className = isWithin 
+            ? "p-3 bg-emerald-50 rounded-xl flex items-start gap-3 border border-emerald-100" 
+            : "p-3 bg-amber-50 rounded-xl flex items-start gap-3 border border-amber-100";
           
-          document.getElementById('modal-crud-title').innerText = "Modify Existing Profile Data Layer";
-          document.getElementById('crud-student-id').value = s.id;
-          document.getElementById('crud-name').value = s.name;
-          document.getElementById('crud-roll').value = s.roll;
-          document.getElementById('crud-regNo').value = s.regNo || '';
-          document.getElementById('crud-dept').value = s.department;
-          document.getElementById('crud-sem').value = s.semester || '1st';
-          document.getElementById('crud-mobile').value = s.mobile || '';
-          document.getElementById('crud-email').value = s.email;
-          document.getElementById('crud-password').placeholder = "Enter text to rewrite credentials key completely";
-        } else {
-          document.getElementById('modal-crud-title').innerText = "Register New Roster Profile Node";
-          document.getElementById('crud-student-id').value = "";
-          document.getElementById('crud-password').placeholder = "Default initial value: 123456";
-        }
-        document.getElementById('student-crud-modal').classList.remove('hidden');
-      },
+          geoTitle.className = isWithin ? "font-semibold text-emerald-800" : "font-semibold text-amber-800";
+          geoTitle.innerHTML = isWithin 
+            ? `<i class="fa-solid fa-location-dot"></i> Secure Campus Range Active` 
+            : `<i class="fa-solid fa-triangle-exclamation"></i> Out-of-Bounds Detected`;
 
-      closeStudentModal() { document.getElementById('student-crud-modal').classList.add('hidden'); },
-      closeProfileModal() { document.getElementById('student-profile-modal').classList.add('hidden'); }
-    };
-
-    const appRouter = {
-      routeView() {
-        document.getElementById('view-login').classList.add('hidden');
-        document.getElementById('view-student').classList.add('hidden');
-        document.getElementById('view-admin').classList.add('hidden');
-        document.getElementById('app-header').classList.add('hidden');
-        
-        if (!STATE.token) {
-          document.getElementById('view-login').classList.remove('hidden');
-        } else {
-          document.getElementById('app-header').classList.remove('hidden');
+          geoCoords.textContent = `Coordinates: ${currentCoords.lat.toFixed(5)}, ${currentCoords.lng.toFixed(5)} | Precision: ±${currentCoords.accuracy.toFixed(1)}m`;
+          geoDistText.textContent = `${Math.round(distance)} meters`;
           
-          if (STATE.role === 'admin') {
-            document.getElementById('view-admin').classList.remove('hidden');
-            adminActions.loadDashboardContext();
-            adminUi.switchTab('tab-manage-students');
+          if (isWithin) {
+            geoDistText.className = "font-bold text-emerald-600";
           } else {
-            document.getElementById('view-student').classList.remove('hidden');
-            actions.initStudentPortal();
+            geoDistText.className = "font-bold text-rose-600";
           }
+        },
+        (err) => {
+          geoBox.className = "p-3 bg-rose-50 rounded-xl flex items-start gap-3 border border-rose-100";
+          geoTitle.className = "font-semibold text-rose-700";
+          geoTitle.textContent = "Geotag Tracking Locked";
+          geoCoords.textContent = `Error: ${err.message}. Location permissions are required for attendance.`;
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+    }
+
+    // Geolocation math matching back-end Haversine formula
+    function calculateGeofenceDistance(lat, lng) {
+      const R = 6371000;
+      const dLat = (lat - GEOFENCE_CENTER.LAT) * Math.PI / 180;
+      const dLng = (lng - GEOFENCE_CENTER.LNG) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(GEOFENCE_CENTER.LAT * Math.PI / 180) * Math.cos(lat * Math.PI / 180) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    // Camera Stream Activation
+    async function startCamera() {
+      const video = document.getElementById("webcam");
+      const msg = document.getElementById("cameraStatusMsg");
+
+      try {
+        activeStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        video.srcObject = activeStream;
+        msg.classList.add("hidden-view");
+      } catch (err) {
+        msg.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-3xl mb-2 text-rose-400"></i><p>Video Feed Access Denied: ${err.message}</p>`;
+      }
+    }
+
+    // Snapping camera verification screenshot
+    function capturePhoto() {
+      const video = document.getElementById("webcam");
+      const canvas = document.getElementById("photoCanvas");
+      const snapBtn = document.getElementById("snapBtn");
+      const retakeBtn = document.getElementById("retakeBtn");
+
+      const ctx = canvas.getContext("2d");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      capturedImageBase64 = canvas.toDataURL("image/jpeg");
+      canvas.classList.remove("hidden-view");
+      video.classList.add("hidden-view");
+      snapBtn.classList.add("hidden-view");
+      retakeBtn.classList.remove("hidden-view");
+    }
+
+    // Resetting photo state
+    function resetPhoto() {
+      const video = document.getElementById("webcam");
+      const canvas = document.getElementById("photoCanvas");
+      const snapBtn = document.getElementById("snapBtn");
+      const retakeBtn = document.getElementById("retakeBtn");
+
+      capturedImageBase64 = null;
+      canvas.classList.add("hidden-view");
+      video.classList.remove("hidden-view");
+      snapBtn.classList.remove("hidden-view");
+      retakeBtn.classList.add("hidden-view");
+    }
+
+    // Submitting Entry/Exit Attendance Payload
+    async function submitAttendance(action) {
+      if (!currentCoords) {
+        showToast("Access coordinates lock missing. Ensure location permission is enabled.", "error");
+        return;
+      }
+      if (!capturedImageBase64) {
+        showToast("Visual camera verification snap required to submit.", "error");
+        return;
+      }
+
+      const payload = {
+        lat: currentCoords.lat,
+        lng: currentCoords.lng,
+        accuracy: currentCoords.accuracy,
+        gpsSource: "WebBrowserGPS",
+        imageB64: capturedImageBase64
+      };
+
+      showToast("Sending validation package to cloud...", "success");
+      const res = await executeApiCall(action, payload);
+
+      if (res.success) {
+        showToast(res.message, "success");
+        resetPhoto();
+        fetchTodayStatus();
+      } else {
+        showToast(res.message, "error");
+      }
+    }
+
+    // ==================== CONTROLLERS: AUTHENTICATION ====================
+    async function handleLogin(e) {
+      e.preventDefault();
+      const role = document.querySelector('input[name="loginRole"]:checked').value;
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      showToast("Verifying identity...", "success");
+      const res = await executeApiCall("login", { username, password, role }); // Correct param mapper
+
+      if (res.success) {
+        sessionToken = res.token;
+        sessionUser = res.user;
+        sessionRole = res.role;
+
+        localStorage.setItem("att_session_token", sessionToken);
+        localStorage.setItem("att_session_user", JSON.stringify(sessionUser));
+        localStorage.setItem("att_session_role", sessionRole);
+
+        showToast("Authentication successful!", "success");
+        initSessionView();
+      } else {
+        showToast(res.message || "Invalid Authentication credentials.", "error");
+      }
+    }
+
+    async function handleLogout() {
+      if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId);
+      if (activeStream) activeStream.getTracks().forEach(track => track.stop());
+
+      await executeApiCall("logout", { userId: sessionUser?.id }); // Core exit routing
+
+      localStorage.clear();
+      sessionToken = null;
+      sessionUser = null;
+      sessionRole = null;
+
+      showView("loginView");
+      showToast("Logged out successfully.", "success");
+    }
+
+    // ==================== CONTROLLERS: ADMIN ACTIONS ====================
+
+    // Retrieve Admin Dashboard Stats
+    async function fetchAdminDashboard() {
+      const res = await executeApiCall("getDashboardStats");
+      if (res.success) {
+        document.getElementById("statTotalStudents").textContent = res.data.totalStudents;
+        document.getElementById("statPresent").textContent = res.data.present;
+        document.getElementById("statEntryOnly").textContent = res.data.entryOnly;
+        document.getElementById("statSuspicious").textContent = res.data.suspicious;
+      }
+    }
+
+    // Tab Interface Toggler
+    function switchAdminTab(tab) {
+      document.getElementById("btnTabStu").className = "border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 text-sm font-semibold tracking-wide flex items-center gap-2";
+      document.getElementById("btnTabReport").className = "border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 text-sm font-semibold tracking-wide flex items-center gap-2";
+      document.getElementById("btnTabLogs").className = "border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 text-sm font-semibold tracking-wide flex items-center gap-2";
+
+      document.getElementById("tabContentStudents").classList.add("hidden-view");
+      document.getElementById("tabContentReports").classList.add("hidden-view");
+      document.getElementById("tabContentLogs").classList.add("hidden-view");
+
+      if (tab === "stuTab") {
+        document.getElementById("btnTabStu").className = "border-b-2 border-indigo-600 text-indigo-600 py-3 px-1 text-sm font-bold tracking-wide flex items-center gap-2";
+        document.getElementById("tabContentStudents").classList.remove("hidden-view");
+        fetchRoster();
+      } else if (tab === "reportTab") {
+        document.getElementById("btnTabReport").className = "border-b-2 border-indigo-600 text-indigo-600 py-3 px-1 text-sm font-bold tracking-wide flex items-center gap-2";
+        document.getElementById("tabContentReports").classList.remove("hidden-view");
+      } else if (tab === "logsTab") {
+        document.getElementById("btnTabLogs").className = "border-b-2 border-indigo-600 text-indigo-600 py-3 px-1 text-sm font-bold tracking-wide flex items-center gap-2";
+        document.getElementById("tabContentLogs").classList.remove("hidden-view");
+        fetchAuditLogs();
+      }
+    }
+
+    // Retrieve Students Directory Roster
+    async function fetchRoster() {
+      const res = await executeApiCall("getAllStudents");
+      const tbody = document.getElementById("studentRosterTableBody");
+      
+      if (res.success && res.data.students) {
+        tbody.innerHTML = "";
+        res.data.students.forEach(s => {
+          const statusClass = s.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
+          const row = `
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 font-semibold text-gray-900">${s.id}</td>
+              <td class="px-6 py-4">${s.name}</td>
+              <td class="px-6 py-4">${s.roll} / <span class="text-xs text-gray-400">${s.regNo}</span></td>
+              <td class="px-6 py-4">${s.department} (${s.semester})</td>
+              <td class="px-6 py-4 text-xs">Email: ${s.email}<br>Tel: ${s.mobile}</td>
+              <td class="px-6 py-4">
+                <span onclick="toggleStudentStatus('${s.id}', '${s.status}')" class="px-2 py-1 text-xs font-bold rounded-full cursor-pointer ${statusClass}">
+                  ${s.status}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-right space-x-2">
+                <button onclick="openEditStudentModal('${encodeURIComponent(JSON.stringify(s))}')" class="text-indigo-600 hover:text-indigo-900 text-xs font-bold"><i class="fa-solid fa-pen"></i> Edit</button>
+                <button onclick="deleteStudentProfile('${s.id}')" class="text-rose-600 hover:text-rose-900 text-xs font-bold"><i class="fa-solid fa-trash-can"></i> Del</button>
+              </td>
+            </tr>
+          `;
+          tbody.insertAdjacentHTML("beforeend", row);
+        });
+      } else {
+        tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-rose-500 font-bold">Failed to pull student lists: ${res.message}</td></tr>`;
+      }
+    }
+
+    // Student Active/Suspended status toggler
+    async function toggleStudentStatus(id, currentStatus) {
+      const newStatus = currentStatus === "active" ? "suspended" : "active";
+      const res = await executeApiCall("setStudentStatus", { id, status: newStatus });
+      if (res.success) {
+        showToast("Student status changed successfully.", "success");
+        fetchRoster();
+      }
+    }
+
+    // Modal forms toggler
+    function openAddStudentModal() {
+      document.getElementById("studentDataForm").reset();
+      document.getElementById("formStudentId").value = "";
+      document.getElementById("formStudentPassword").placeholder = "Required (min 6 characters)";
+      document.getElementById("formStudentPassword").required = true;
+      document.getElementById("modalTitle").textContent = "Register New Student";
+      document.getElementById("studentFormModal").classList.remove("hidden-view");
+    }
+
+    function openEditStudentModal(encodedStudent) {
+      const s = JSON.parse(decodeURIComponent(encodedStudent));
+      document.getElementById("formStudentId").value = s.id;
+      document.getElementById("formStudentName").value = s.name;
+      document.getElementById("formStudentRoll").value = s.roll;
+      document.getElementById("formStudentReg").value = s.regNo;
+      document.getElementById("formStudentDept").value = s.department;
+      document.getElementById("formStudentSem").value = s.semester;
+      document.getElementById("formStudentMobile").value = s.mobile;
+      document.getElementById("formStudentEmail").value = s.email;
+      
+      document.getElementById("formStudentPassword").value = "";
+      document.getElementById("formStudentPassword").placeholder = "Leave blank to preserve current password";
+      document.getElementById("formStudentPassword").required = false;
+
+      document.getElementById("modalTitle").textContent = `Modify Profile Profile: ${s.id}`;
+      document.getElementById("studentFormModal").classList.remove("hidden-view");
+    }
+
+    function closeStudentModal() {
+      document.getElementById("studentFormModal").classList.add("hidden-view");
+    }
+
+    // Submit Add or Edit Student Forms
+    async function handleStudentFormSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById("formStudentId").value;
+      const payload = {
+        name: document.getElementById("formStudentName").value,
+        roll: document.getElementById("formStudentRoll").value,
+        regNo: document.getElementById("formStudentReg").value,
+        department: document.getElementById("formStudentDept").value,
+        semester: document.getElementById("formStudentSem").value,
+        mobile: document.getElementById("formStudentMobile").value,
+        email: document.getElementById("formStudentEmail").value,
+      };
+
+      const passVal = document.getElementById("formStudentPassword").value;
+      if (passVal) payload.password = passVal;
+
+      let res;
+      if (id) {
+        payload.id = id;
+        res = await executeApiCall("updateStudent", payload); // Route update
+      } else {
+        res = await executeApiCall("addStudent", payload); // Route insert
+      }
+
+      if (res.success) {
+        showToast(res.message, "success");
+        closeStudentModal();
+        fetchRoster();
+        fetchAdminDashboard();
+        fetchDepartmentDropdown();
+      } else {
+        showToast(res.message, "error");
+      }
+    }
+
+    // Delete student profile execution
+    async function deleteStudentProfile(id) {
+      if (confirm(`Warning: Are you absolutely sure you want to drop student profile "${id}"? This action is permanent.`)) {
+        const res = await executeApiCall("deleteStudent", { id });
+        if (res.success) {
+          showToast(res.message, "success");
+          fetchRoster();
+          fetchAdminDashboard();
         }
       }
-    };
+    }
 
-    window.addEventListener('DOMContentLoaded', () => appRouter.routeView());
+    // Fetch Departments list to configure search dropdown
+    async function fetchDepartmentDropdown() {
+      const res = await executeApiCall("getDepartments");
+      const select = document.getElementById("reportDeptSelect");
+      if (res.success && res.data.departments) {
+        // Keep "All Departments" option [0]
+        select.innerHTML = '<option value="ALL">All Departments</option>';
+        res.data.departments.forEach(dept => {
+          select.insertAdjacentHTML("beforeend", `<option value="${dept}">${dept}</option>`);
+        });
+      }
+    }
+
+    // Query Reports
+    async function fetchReport() {
+      const start = document.getElementById("reportStartDate").value;
+      const end = document.getElementById("reportEndDate").value;
+      const dept = document.getElementById("reportDeptSelect").value;
+
+      showToast("Searching database grid arrays...", "success");
+      const res = await executeApiCall("generateReport", { start, end, dept });
+      const tbody = document.getElementById("reportTableBody");
+      const container = document.getElementById("reportContainer");
+
+      if (res.success && res.data.rows) {
+        currentActiveReportRows = res.data.rows;
+        tbody.innerHTML = "";
+        container.classList.remove("hidden-view");
+
+        if (res.data.rows.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="10" class="px-4 py-8 text-center text-gray-400">No records found within date boundaries.</td></tr>';
+          return;
+        }
+
+        res.data.rows.forEach(r => {
+          const badgeClass = r.status === "PRESENT" ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800";
+          const imageLink = r.media.startsWith("http") 
+            ? `<a href="${r.media}" target="_blank" class="text-indigo-600 hover:underline font-semibold"><i class="fa-solid fa-image"></i> View Pic</a>` 
+            : "No Media";
+
+          const row = `
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold text-gray-900">${r.logId}</td>
+              <td class="px-4 py-3">${r.studentId}</td>
+              <td class="px-4 py-3">${r.name} (${r.roll})</td>
+              <td class="px-4 py-3">${r.department}</td>
+              <td class="px-4 py-3">${r.date}</td>
+              <td class="px-4 py-3 text-emerald-600 font-medium">${r.entryTime}</td>
+              <td class="px-4 py-3 text-rose-600 font-medium">${r.exitTime}</td>
+              <td class="px-4 py-3">${r.distance}</td>
+              <td class="px-4 py-3">${imageLink}</td>
+              <td class="px-4 py-3">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}">${r.status}</span>
+              </td>
+            </tr>
+          `;
+          tbody.insertAdjacentHTML("beforeend", row);
+        });
+      } else {
+        tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-8 text-center text-rose-500 font-bold">Failed to load reports: ${res.message}</td></tr>`;
+      }
+    }
+
+    // Export Reports to CSV
+    function exportReportToCSV() {
+      if (currentActiveReportRows.length === 0) return;
+
+      const headers = ["Log ID", "Student ID", "Full Name", "Roll No", "Department", "Calendar Date", "Sign-In", "Sign-Out", "Variance Distance", "Image Link", "System Assessment"];
+      const rows = currentActiveReportRows.map(r => [
+        r.logId, r.studentId, r.name, r.roll, r.department, r.date, r.entryTime, r.exitTime, r.distance, r.media, r.status
+      ]);
+
+      const csvContent = [headers, ...rows]
+        .map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Attendance_Report_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Query Audit logs for console interface
+    async function fetchAuditLogs() {
+      const consoleLog = document.getElementById("consoleLogsOutput");
+      const res = await executeApiCall("getSystemLogs", { maxRows: 50 });
+
+      if (res.success && res.data.logs) {
+        consoleLog.innerHTML = "";
+        res.data.logs.forEach(l => {
+          const timestamp = new Date(l.timestamp).toLocaleString();
+          const logLine = `[${timestamp}] Actor: ${l.userId} | Action: ${l.action} | Code: ${l.status} | Diagnostics: ${l.ip}\n`;
+          consoleLog.textContent += logLine;
+        });
+      } else {
+        consoleLog.textContent = `Server logs query exception: ${res.message}`;
+      }
+    }
   </script>
 </body>
 </html>
