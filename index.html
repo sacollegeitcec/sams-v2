@@ -1055,17 +1055,7 @@
       },
 
       initializeReportDates() {
-        const startInput = document.getElementById('rep-start-date');
-        const endInput = document.getElementById('rep-end-date');
         
-        if (startInput && !startInput.value) {
-          const now = new Date();
-          const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-          startInput.value = firstDay.toISOString().split('T')[0];
-        }
-        if (endInput && !endInput.value) {
-          endInput.value = new Date().toISOString().split('T')[0];
-        }
       },
 
       triggerBulkFileInput() { document.getElementById('bulk-student-csv').click(); },
